@@ -1,7 +1,10 @@
 import unittest
-from evaluate import evaluate
+from evaluate import evaluate, variables
 
 class TestMath(unittest.TestCase):
+
+    def tearDown(self):
+        variables.clear()
 
     def test_eval_number(self):
         self.assertEqual(evaluate("42"), 42)
@@ -12,6 +15,11 @@ class TestMath(unittest.TestCase):
     def test_eval_nested_sum(self):
         self.assertEqual(evaluate("(+ 1 (+ (+ 2.23 5) 3))"), 11.23)
 
+    def test_sum_variables(self):
+        evaluate("(defvar a 4)")
+        evaluate("(defvar b 8)")
+        self.assertEqual(evaluate("(+ a b)"), 12)
+    
     def test_eval_simple_subtraction(self):
         self.assertEqual(evaluate("(- 1 2)"), -1)
 

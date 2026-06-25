@@ -11,30 +11,56 @@ def evaluate(exp):
 
     if isinstance(ast, list):
         return __evaluate_node(ast)
-    else:
-        value = symbol_value(ast)
 
-        if value is None:
-            return ast
-        else:
-            return value
+    if is_number(ast):
+        return ast
+
+    value = symbol_value(ast)
+    return ast if value is None else value
+
         
 
 def __evaluate_node(node):
-    if isinstance(node, list):
-        if isinstance(node[0], list):
-            head = __evaluate_node(node[0])
-        else:
-            head = node[0]
+    if __should_not_evaluate(node):
+        return node
 
-        tail = [__evaluate_node(n) for n in node[1:]]
+    if isinstance(node, list):
+        head = __evaluate_node(node[0]) if isinstance(node[0], list) else node[0]
+
+        if __is_special_form(head):
+            tail = node[1:]
+        else:
+            tail = [__evaluate_node(n) for n in node[1:]]
+
         function = functions[head]
         return function(*tail)
     else:
-        return node
+        if is_string(node) or is_number(node):
+            return node
+        else:
+            return symbol_value(node)
+
+
+def __should_not_evaluate(node):
+    return isinstance(node, str) and node.startswith("'")
+
+        
+def __is_special_form(symbol):
+    return symbol in ["defvar"]
+
+
+def is_string(x):
+    return isinstance(x, str) and len(x) > 0 and x.startswith("\"")
+
+
+def is_number(x):
+    return isinstance(x, (int, float))
 
 
 def symbol_value(x):
+    if x.startswith("'"):
+        x = x[1:]
+
     if x in variables:
         return variables[x]
     else:

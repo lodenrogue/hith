@@ -7,7 +7,7 @@ class TestVariables(unittest.TestCase):
         variables.clear()
 
     def test_undefined_variable(self):
-        self.assertEqual(evaluate("(symbol-value x)"), None)
+        self.assertEqual(evaluate("(symbol-value 'x)"), None)
 
     def test_variable_value(self):
         value = 20
@@ -17,12 +17,12 @@ class TestVariables(unittest.TestCase):
     def test_numeric_variable(self):
         value = 10
         evaluate(f"(defvar x {value})")
-        self.assertEqual(evaluate("(symbol-value x)"), value)
+        self.assertEqual(evaluate("(symbol-value 'x)"), value)
 
     def test_string_variable(self):
         value = "\"Hello, world!\""
         evaluate(f"(defvar x {value})")
-        self.assertEqual(evaluate("(symbol-value x)"), value)
+        self.assertEqual(evaluate("(symbol-value 'x)"), value)
 
 if __name__ == "__main__":
     unittest.main()

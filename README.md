@@ -92,7 +92,7 @@ Output:
 x
 => 10
 
-(symbol-value x)
+(symbol-value 'x)
 => 10
 ```
 
@@ -118,7 +118,7 @@ x
 
 (defvar greeting "Hello, world!")
 
-(symbol-value greeting)
+(symbol-value 'greeting)
 => "Hello, world!"
 
 (* 3 (+ 4 (- 13 6)))
