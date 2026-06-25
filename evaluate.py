@@ -27,8 +27,8 @@ def __evaluate_node(node):
         else:
             head = node[0]
 
-        function = functions[head]
         tail = [__evaluate_node(n) for n in node[1:]]
+        function = functions[head]
         return function(*tail)
     else:
         return node
