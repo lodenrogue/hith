@@ -21,4 +21,7 @@ class Lexer:
             else:
                 collector += c
 
+        if collector != "":
+            tokens.append(collector)
+
         return tokens
