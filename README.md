@@ -24,6 +24,18 @@ Hiss supports:
 
 ## Usage
 
+### Repl
+
+To start the repl you can run:
+
+```bash
+python hiss.py
+```
+
+### Use from code
+
+To use hiss from Python code you can do:
+
 ```python
 from evaluate import evaluate
 
