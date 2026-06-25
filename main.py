@@ -35,6 +35,10 @@ def run_parser_ast_tests():
     parser_ast_primitive_example = PARSER.build_ast(LEXER.tokenize(PRIMITIVE_EXAMPLE))
     print(parser_ast_primitive_example)
     assert parser_ast_primitive_example == 42
+
+    parser_ast_string_example = PARSER.build_ast(LEXER.tokenize("\"Hello World () 33.43\""))
+    print(parser_ast_string_example)
+    assert parser_ast_string_example == "\"Hello World () 33.43\""
     
     parser_ast_simple_example = PARSER.build_ast(LEXER.tokenize(SIMPLE_EXAMPLE))
     print(parser_ast_simple_example)
