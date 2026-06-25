@@ -65,9 +65,37 @@ def run_math_tests():
     print(simple_sum_example)
     assert simple_sum_example == 3
 
-    nested_sum_example = evaluate("(+ 1 (+ (+ 2 5) 3))")
+    nested_sum_example = evaluate("(+ 1 (+ (+ 2.23 5) 3))")
     print(nested_sum_example)
-    assert nested_sum_example == 11
+    assert nested_sum_example == 11.23
+
+    simple_subtraction_example = evaluate("(- 1 2)")
+    print(simple_subtraction_example)
+    assert simple_subtraction_example == -1
+
+    nested_subtraction_example = evaluate("(- 6 (- 4 2)")
+    print(nested_subtraction_example)
+    assert nested_subtraction_example == 4
+
+    simple_multiplication_example = evaluate("(* 3 9)")
+    print(simple_multiplication_example)
+    assert simple_multiplication_example == 27
+
+    nested_multiplication_example = evaluate("(* (* 3 4) 6)")
+    print(nested_multiplication_example)
+    assert nested_multiplication_example == 72
+
+    simple_division_example = evaluate("(/ 27 3)")
+    print(simple_division_example)
+    assert simple_division_example == 9
+
+    nested_division_example = evaluate("(/ 20 (/ 44 11))")
+    print(nested_division_example)
+    assert nested_division_example == 5
+
+    mixed_math_example = evaluate("(* 3 (+ 4 (- 13 6)))")
+    print(mixed_math_example)
+    assert mixed_math_example == 33
     
     
 if __name__ == "__main__":

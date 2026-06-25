@@ -25,6 +25,9 @@ def __evaluate_node(node):
 
 
 env = {
-    "+": lambda x, y: x + y
+    "+": lambda x, y: x + y,
+    "-": lambda x, y: x - y,
+    "*": lambda x, y: x * y,
+    "/": lambda x, y: x / y
 }
 
