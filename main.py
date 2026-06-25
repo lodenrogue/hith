@@ -1,5 +1,6 @@
 from lexer import Lexer
 from parser import Parser
+from evaluate import evaluate
 
 PRIMITIVE_EXAMPLE = "42"
 SIMPLE_EXAMPLE = "(+ 1 2.3)"
@@ -52,10 +53,29 @@ def run_parser_ast_tests():
     print(parser_ast_example_with_spaces)
     assert parser_ast_example_with_spaces == ["defvar", "x", "\"hello() 33.23 world\""]
     
+
+def run_math_tests():
+    print("Eval Math Tests")
+    
+    number_example = evaluate("42")
+    print(number_example)
+    assert number_example == 42
+
+    simple_sum_example = evaluate("(+ 1 2)")
+    print(simple_sum_example)
+    assert simple_sum_example == 3
+
+    nested_sum_example = evaluate("(+ 1 (+ (+ 2 5) 3))")
+    print(nested_sum_example)
+    assert nested_sum_example == 11
+    
     
 if __name__ == "__main__":
     run_lexer_tests()
     print()
 
     run_parser_ast_tests()
+    print()
+
+    run_math_tests()
     print()

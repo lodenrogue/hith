@@ -7,7 +7,7 @@ class Parser:
         current_node = tree
 
         for raw_token in tokens:
-            token = self.atomize(raw_token)
+            token = self.__atomize(raw_token)
 
             if token == "(":
                 new_node = Node([])
@@ -22,7 +22,7 @@ class Parser:
         return self.__unwrap_node(tree)[0]
 
     
-    def atomize(self, token):
+    def __atomize(self, token):
         try:
             return int(token)
         except ValueError:
