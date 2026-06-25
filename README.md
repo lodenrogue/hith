@@ -1,8 +1,8 @@
-# Hiss
+# Hith
 
 A Lisp interpreter written in Python.
 
-Hiss supports:
+Hith supports:
 
 * Arithmetic operations
 * Comparison operators
@@ -14,6 +14,10 @@ Hiss supports:
 * Nested expressions
 * S-expression syntax
 
+## Why the name Hith?
+
+It sounds like a snake hissing with a lisp. :)
+ 
 ## Example
 
 ```lisp
@@ -37,7 +41,7 @@ False
 Start the REPL:
 
 ```bash
-python hiss.py
+python hith.py
 ```
 
 ### Use from Code

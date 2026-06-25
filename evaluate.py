@@ -17,7 +17,6 @@ def evaluate(exp):
 
     value = symbol_value(ast)
     return ast if value is None else value
-
         
 
 def __evaluate_node(node):
