@@ -6,13 +6,16 @@ def start_repl():
     print("Type exit to quit")
 
     while True:
-        exp = input(">>> ")
+        try:
+            exp = input(">>> ")
 
-        if exp == "exit":
-            exit()
-        else:
-            print(evaluate(exp))
-    
+            if exp == "exit":
+                exit()
+            else:
+                print(evaluate(exp))
+        except Exception as e:
+            print(e)
+
 
 if __name__ == "__main__":
     start_repl()
