@@ -2,85 +2,104 @@ from lexer import Lexer
 from parser import Parser
 
 
-lexer = Lexer()
-parser = Parser()
+class Evaluator:
+
+    def __init__(self):
+        #self.env = env
+        self.lexer = Lexer()
+        self.parser = Parser()
+
+        self.functions = {
+            "+": lambda x, y: x + y,
+            "-": lambda x, y: x - y,
+            "*": lambda x, y: x * y,
+            "/": lambda x, y: x / y,
+            ">": lambda x, y: x > y,
+            "<": lambda x, y: x < y,
+            ">=": lambda x, y: x >= y,
+            "<=": lambda x, y: x <= y,
+            "eq": lambda x, y: x == y,
+            "if": lambda cond, dothen, doelse: self.doif(cond, dothen, doelse),
+            "symbol-value": self.symbol_value,
+            "defvar": self.defvar
+        }
 
 
-def evaluate(exp):
-    ast = parser.build_ast(lexer.tokenize(exp))
+    def evaluate(self, exp):
+        ast = self.parser.build_ast(self.lexer.tokenize(exp))
+        
+        if isinstance(ast, list):
+            return self.evaluate_node(ast)
+        
+        if self.is_number(ast):
+            return ast
+        
+        value = self.symbol_value(ast)
+        return ast if value is None else value
 
-    if isinstance(ast, list):
-        return evaluate_node(ast)
 
-    if is_number(ast):
-        return ast
-
-    value = symbol_value(ast)
-    return ast if value is None else value
-
-
-def evaluate_node(node):
-    if __should_not_evaluate(node):
-        return node
-
-    if isinstance(node, list):
-        head = evaluate_node(node[0]) if isinstance(node[0], list) else node[0]
-
-        if __is_special_form(head):
-            tail = node[1:]
-        else:
-            tail = [evaluate_node(n) for n in node[1:]]
-
-        function = functions[head]
-        return function(*tail)
-    else:
-        if is_string(node) or is_number(node):
+    def evaluate_node(self, node):
+        if self.should_not_evaluate(node):
             return node
+        
+        if isinstance(node, list):
+            head = self.evaluate_node(node[0]) if isinstance(node[0], list) else node[0]
+            
+            if self.is_special_form(head):
+                tail = node[1:]
+            else:
+                tail = [self.evaluate_node(n) for n in node[1:]]
+                
+            function = self.functions[head]
+            return function(*tail)
         else:
-            return symbol_value(node)
+            if self.is_string(node) or self.is_number(node):
+                return node
+            else:
+                return self.symbol_value(node)
 
 
-def __should_not_evaluate(node):
-    return isinstance(node, str) and node.startswith("'")
+    def should_not_evaluate(self, node):
+        return isinstance(node, str) and node.startswith("'")
 
         
-def __is_special_form(symbol):
-    return symbol in ["defvar", "if"]
+    def is_special_form(self, symbol):
+        return symbol in ["defvar", "if"]
 
 
-def is_string(x):
-    return isinstance(x, str) and len(x) > 0 and x.startswith("\"")
+    def is_string(self, x):
+        return isinstance(x, str) and len(x) > 0 and x.startswith("\"")
 
 
-def is_number(x):
-    return isinstance(x, (int, float))
+    def is_number(self, x):
+        return isinstance(x, (int, float))
 
 
-def doif(cond, dothen, doelse):
-    cond_value = evaluate_node(cond)
-
-    if cond_value is not False and cond_value != "False":
-        return evaluate_node(dothen)
-    else:
-        return evaluate_node(doelse)
-
-
-def symbol_value(x):
-    if x.startswith("'"):
-        x = x[1:]
-
-    if x in variables.data:
-        return variables.data[x]
-    else:
-        return None
+    def doif(self, cond, dothen, doelse):
+        cond_value = self.evaluate_node(cond)
+        
+        if cond_value is not False and cond_value != "False":
+            return self.evaluate_node(dothen)
+        else:
+            return self.evaluate_node(doelse)
 
 
-def defvar(name, value):
-    variables.data[name] = value
-    return name
+    def symbol_value(self, x):
+        if x.startswith("'"):
+            x = x[1:]
+
+        if x in variables.data:
+            return variables.data[x]
+        else:
+            return None
 
 
-class Variables(dict):
+    def defvar(self, name, value):
+        variables.data[name] = value
+        return name
+
+
+class Variables():
     def __init__(self):
         self.data = self.__create_init_values()
 
@@ -94,18 +113,3 @@ class Variables(dict):
 
 
 variables = Variables()
-
-functions = {
-    "+": lambda x, y: x + y,
-    "-": lambda x, y: x - y,
-    "*": lambda x, y: x * y,
-    "/": lambda x, y: x / y,
-    ">": lambda x, y: x > y,
-    "<": lambda x, y: x < y,
-    ">=": lambda x, y: x >= y,
-    "<=": lambda x, y: x <= y,
-    "eq": lambda x, y: x == y,
-    "if": lambda cond, dothen, doelse: doif(cond, dothen, doelse),
-    "symbol-value": symbol_value,
-    "defvar": defvar
-}
