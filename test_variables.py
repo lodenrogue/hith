@@ -1,14 +1,15 @@
 import unittest
-from evaluate import Evaluator, variables
+from evaluate import Evaluator, Env, Variables
 
 class TestVariables(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.evaluate = Evaluator().evaluate
+        cls.env = Env(variables=Variables(), parent=None)
+        cls.evaluate = Evaluator(cls.env).evaluate
 
     def tearDown(self):
-        variables.clear()
+        self.env.clear_variables()
 
     def test_undefined_variable(self):
         self.assertEqual(self.evaluate("(symbol-value 'x)"), None)

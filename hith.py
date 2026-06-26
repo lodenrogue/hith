@@ -1,4 +1,7 @@
-from evaluate import evaluate
+from evaluate import Evaluator, Env, Variables
+
+env = Env(variables=Variables(), parent=None)
+evaluate = Evaluator(env).evaluate
 
 
 def start_repl():

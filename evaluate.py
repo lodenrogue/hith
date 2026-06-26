@@ -4,8 +4,8 @@ from parser import Parser
 
 class Evaluator:
 
-    def __init__(self):
-        #self.env = env
+    def __init__(self, env):
+        self.env = env
         self.lexer = Lexer()
         self.parser = Parser()
 
@@ -20,8 +20,8 @@ class Evaluator:
             "<=": lambda x, y: x <= y,
             "eq": lambda x, y: x == y,
             "if": lambda cond, dothen, doelse: self.doif(cond, dothen, doelse),
-            "symbol-value": self.symbol_value,
-            "defvar": self.defvar
+            "symbol-value": self.env.symbol_value,
+            "defvar": self.env.defvar
         }
 
 
@@ -34,7 +34,7 @@ class Evaluator:
         if self.is_number(ast):
             return ast
         
-        value = self.symbol_value(ast)
+        value = self.env.symbol_value(ast)
         return ast if value is None else value
 
 
@@ -56,7 +56,7 @@ class Evaluator:
             if self.is_string(node) or self.is_number(node):
                 return node
             else:
-                return self.symbol_value(node)
+                return self.env.symbol_value(node)
 
 
     def should_not_evaluate(self, node):
@@ -84,21 +84,6 @@ class Evaluator:
             return self.evaluate_node(doelse)
 
 
-    def symbol_value(self, x):
-        if x.startswith("'"):
-            x = x[1:]
-
-        if x in variables.data:
-            return variables.data[x]
-        else:
-            return None
-
-
-    def defvar(self, name, value):
-        variables.data[name] = value
-        return name
-
-
 class Variables():
     def __init__(self):
         self.data = self.__create_init_values()
@@ -110,6 +95,32 @@ class Variables():
 
     def clear(self):
         self.data = self.__create_init_values()
+
+
+class Env:
+
+    def __init__(self, variables, parent):
+        self.variables = variables
+        self.parent = parent
+
+    def symbol_value(self, symbol):
+        if symbol.startswith("'"):
+            symbol = symbol[1:]
+
+        if symbol in self.variables.data:
+            return self.variables.data[symbol]
+        else:
+            if self.parent:
+                return self.parent.symbol_value(symbol)
+            else:
+                return None
+
+    def defvar(self, name, value):
+        self.variables.data[name] = value
+        return name
+
+    def clear_variables(self):
+        self.variables.clear()
 
 
 variables = Variables()
