@@ -10,26 +10,26 @@ def evaluate(exp):
     ast = parser.build_ast(lexer.tokenize(exp))
 
     if isinstance(ast, list):
-        return __evaluate_node(ast)
+        return evaluate_node(ast)
 
     if is_number(ast):
         return ast
 
     value = symbol_value(ast)
     return ast if value is None else value
-        
 
-def __evaluate_node(node):
+
+def evaluate_node(node):
     if __should_not_evaluate(node):
         return node
 
     if isinstance(node, list):
-        head = __evaluate_node(node[0]) if isinstance(node[0], list) else node[0]
+        head = evaluate_node(node[0]) if isinstance(node[0], list) else node[0]
 
         if __is_special_form(head):
             tail = node[1:]
         else:
-            tail = [__evaluate_node(n) for n in node[1:]]
+            tail = [evaluate_node(n) for n in node[1:]]
 
         function = functions[head]
         return function(*tail)
@@ -57,9 +57,12 @@ def is_number(x):
 
 
 def doif(cond, dothen, doelse):
-    cond_value = __evaluate_node(cond)
-    cond_bool = False if cond_value is False or cond_value == "False" else True
-    return dothen if cond_bool != False else doelse
+    cond_value = evaluate_node(cond)
+
+    if cond_value is not False and cond_value != "False":
+        return evaluate_node(dothen)
+    else:
+        return evaluate_node(doelse)
 
 
 def symbol_value(x):
