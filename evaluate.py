@@ -21,6 +21,7 @@ class Evaluator:
             "eq": lambda x, y: x == y,
             "if": lambda cond, dothen, doelse: self.doif(cond, dothen, doelse),
             "symbol-value": self.env.symbol_value,
+            "setq": self.env.defvar,
             "defvar": self.env.defvar
         }
 
@@ -64,7 +65,7 @@ class Evaluator:
 
         
     def is_special_form(self, symbol):
-        return symbol in ["defvar", "if"]
+        return symbol in ["defvar", "setq", "if"]
 
 
     def is_string(self, x):
