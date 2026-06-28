@@ -131,6 +131,13 @@ True
 
 >>> (if (< x y) (+ x y) (- x y))
 30
+
+>>> (setq z 40)
+z
+
+>>> (symbol-value 'z)
+40
+
 ```
 
 ## Built-in Functions
@@ -148,6 +155,7 @@ True
 | `eq` | Equality comparison |
 | `if` | Conditional expression (special form) |
 | `defvar` | Define a variable in the current environment |
+| `setq` | Define a variable in the current environment |
 | `symbol-value` | Return the value of a symbol |
 
 ## Architecture
@@ -182,9 +190,9 @@ Output:
 
 ### Evaluator
 
-Recursively evaluates the AST. Special forms (`if` and `defvar`)
-receive their arguments unevaluated, while normal functions evaluate
-all arguments before invocation.
+Recursively evaluates the AST. Special forms (`if`, `setq`, and
+`defvar`) receive their arguments unevaluated, while normal functions
+evaluate all arguments before invocation.
 
 Evaluation happens within an `Env` object, allowing environments to be
 nested through parent environments.
