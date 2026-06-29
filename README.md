@@ -13,12 +13,14 @@ Hith supports:
 * Strings
 * Nested expressions
 * Conditionals (`if`)
+* User-defined functions (`defun`)
+* Lexical scoping
 * S-expression syntax
 
 ## Why the name Hith?
 
 It sounds like a snake hissing with a lisp. :)
- 
+
 ## Example
 
 ```lisp
@@ -34,8 +36,10 @@ True
 >>> (if (< x y) "smaller" "larger")
 "smaller"
 
->>> (eq x y)
-False
+>>> (defun square (n) (* n n))
+
+>>> (square 5)
+25
 ```
 
 ## Usage
@@ -51,11 +55,9 @@ python hith.py
 ### Use from Code
 
 ```python
-from evaluate import Evaluator, Env, Variables
+from evaluate import Evaluator
 
-variables = Variables()
-env = Env(variables=variables, parent=None)
-evaluator = Evaluator(env)
+evaluator = Evaluator()
 
 print(evaluator.evaluate("(+ 1 2)"))
 ```
@@ -68,6 +70,8 @@ Output:
 
 ## Language Overview
 
+### Values
+
 ```lisp
 >>> 42
 42
@@ -77,7 +81,11 @@ Output:
 
 >>> "Hello, world!"
 "Hello, world!"
+```
 
+### Arithmetic
+
+```lisp
 >>> (+ 1 2)
 3
 
@@ -92,7 +100,11 @@ Output:
 
 >>> (+ 1 (+ 2 3))
 6
+```
 
+### Variables
+
+```lisp
 >>> (defvar x 10)
 x
 
@@ -105,6 +117,16 @@ y
 >>> (symbol-value 'x)
 10
 
+>>> (setq z 40)
+z
+
+>>> (symbol-value 'z)
+40
+```
+
+### Comparisons
+
+```lisp
 >>> (> y x)
 True
 
@@ -122,7 +144,11 @@ False
 
 >>> (eq (< x y) (> y x))
 True
+```
 
+### Conditionals
+
+```lisp
 >>> (if True 1 2)
 1
 
@@ -131,13 +157,28 @@ True
 
 >>> (if (< x y) (+ x y) (- x y))
 30
+```
 
->>> (setq z 40)
-z
+### User-defined Functions
 
->>> (symbol-value 'z)
-40
+```lisp
+>>> (defun square (n) (* n n))
+square
 
+>>> (square 5)
+25
+
+>>> (defun add (a b) (+ a b))
+add
+
+>>> (add 3 4)
+7
+
+>>> (defvar x 100)
+x
+
+>>> (square x)
+10000
 ```
 
 ## Built-in Functions
@@ -157,6 +198,45 @@ z
 | `defvar` | Define a variable in the current environment |
 | `setq` | Define a variable in the current environment |
 | `symbol-value` | Return the value of a symbol |
+| `defun` | Define a user-defined function |
+
+## User-defined Functions
+
+Functions are defined with `defun`.
+
+```lisp
+(defun square (n)
+  (* n n))
+
+(square 9)
+```
+
+Result:
+
+```lisp
+81
+```
+
+Functions may take multiple parameters.
+
+```lisp
+(defun max2 (a b)
+  (if (> a b)
+      a
+      b))
+
+(max2 10 4)
+```
+
+Result:
+
+```lisp
+10
+```
+
+Functions execute in their own lexical environment. Parameter bindings
+are local to the function while global variables and functions remain
+accessible through the parent environment.
 
 ## Architecture
 
@@ -190,12 +270,14 @@ Output:
 
 ### Evaluator
 
-Recursively evaluates the AST. Special forms (`if`, `setq`, and
-`defvar`) receive their arguments unevaluated, while normal functions
-evaluate all arguments before invocation.
+Recursively evaluates the AST. Special forms (`if`, `setq`, `defvar`,
+and `defun`) receive their arguments unevaluated, while normal
+functions evaluate all arguments before invocation.
 
 Evaluation happens within an `Env` object, allowing environments to be
-nested through parent environments.
+nested through parent environments. User-defined functions create a
+new environment whose parent is the environment in which the function
+was defined, providing lexical scope.
 
 ## Running Tests
 
@@ -209,14 +291,10 @@ Or run individual test files:
 
 ```bash
 python test_lexer.py
-python test_parser.py
-python test_math.py
-python test_variables.py
 ```
 
 ## Current Limitations
 
-* No user-defined functions
+* Function bodies currently consist of a single expression
 * No lists
-* No lexical scope
-* Limited error handling
+* Limited error handlingg
