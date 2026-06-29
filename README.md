@@ -297,4 +297,4 @@ python test_lexer.py
 
 * Function bodies currently consist of a single expression
 * No lists
-* Limited error handlingg
+* Limited error handling
