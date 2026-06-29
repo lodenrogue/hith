@@ -7,19 +7,8 @@ class Evaluator:
     def __init__(self):
         self.lexer = Lexer()
         self.parser = Parser()
-        self.global_env = Env(Variables(), parent=None)
+        self.global_env = Env(Variables(), Functions(), parent=None)
 
-        self.functions = {
-            "+": lambda x, y: x + y,
-            "-": lambda x, y: x - y,
-            "*": lambda x, y: x * y,
-            "/": lambda x, y: x / y,
-            ">": lambda x, y: x > y,
-            "<": lambda x, y: x < y,
-            ">=": lambda x, y: x >= y,
-            "<=": lambda x, y: x <= y,
-            "eq": lambda x, y: x == y,
-        }
 
 
     def evaluate(self, exp):
@@ -38,7 +27,7 @@ class Evaluator:
                 return self.handle_special_form(head, node[1:], env)
             else:
                 tail = [self.evaluate_node(n, env) for n in node[1:]]
-                function = self.functions[head]
+                function = env.function(head)
                 return function(*tail)
         else:
             return env.symbol_value(node)
@@ -87,23 +76,42 @@ class Evaluator:
             return self.evaluate_node(doelse, env)
 
 
-class Variables():
+class Variables:
     def __init__(self):
         self.data = self.__create_init_values()
+
 
     def __create_init_values(self):
         return {
             "False": False
         }
 
-    def clear(self):
+
+class Functions:
+
+    def __init__(self):
         self.data = self.__create_init_values()
+
+
+    def __create_init_values(self):
+        return {
+            "+": lambda x, y: x + y,
+            "-": lambda x, y: x - y,
+            "*": lambda x, y: x * y,
+            "/": lambda x, y: x / y,
+            ">": lambda x, y: x > y,
+            "<": lambda x, y: x < y,
+            ">=": lambda x, y: x >= y,
+            "<=": lambda x, y: x <= y,
+            "eq": lambda x, y: x == y,
+        }
 
 
 class Env:
 
-    def __init__(self, variables, parent):
+    def __init__(self, variables, functions, parent):
         self.variables = variables
+        self.functions = functions
         self.parent = parent
 
     def symbol_value(self, symbol):
@@ -117,6 +125,11 @@ class Env:
         else:
             return None
 
+    def function(self, symbol):
+        if symbol in self.functions.data:
+            return self.functions.data[symbol]
+        elif self.parent:
+            return self.parent.function(symbol)
+        else:
+            return None
 
-    def clear_variables(self):
-        self.variables.clear()
