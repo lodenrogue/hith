@@ -4,10 +4,10 @@ from parser import Parser
 
 class Evaluator:
 
-    def __init__(self, env):
-        self.env = env
+    def __init__(self):
         self.lexer = Lexer()
         self.parser = Parser()
+        self.global_env = Env(Variables(), parent=None)
 
         self.functions = {
             "+": lambda x, y: x + y,
@@ -19,53 +19,46 @@ class Evaluator:
             ">=": lambda x, y: x >= y,
             "<=": lambda x, y: x <= y,
             "eq": lambda x, y: x == y,
-            "if": self.doif,
-            "symbol-value": self.env.symbol_value,
-            "setq": self.defvar,
-            "defvar": self.defvar
         }
 
 
     def evaluate(self, exp):
         ast = self.parser.build_ast(self.lexer.tokenize(exp))
-        
-        if isinstance(ast, list):
-            return self.evaluate_node(ast)
-        
-        if self.is_number(ast):
-            return ast
-        
-        value = self.env.symbol_value(ast)
-        return ast if value is None else value
+        return self.evaluate_node(ast, self.global_env)
 
 
-    def evaluate_node(self, node):
-        if self.should_not_evaluate(node):
+    def evaluate_node(self, node, env):
+        if self.is_string(node) or self.is_number(node) or self.is_quoted(node):
             return node
-        
-        if isinstance(node, list):
-            head = self.evaluate_node(node[0]) if isinstance(node[0], list) else node[0]
+
+        elif isinstance(node, list):
+            head = self.evaluate_node(node[0], env) if isinstance(node[0], list) else node[0]
             
             if self.is_special_form(head):
-                tail = node[1:]
+                return self.handle_special_form(head, node[1:], env)
             else:
-                tail = [self.evaluate_node(n) for n in node[1:]]
-                
-            function = self.functions[head]
-            return function(*tail)
+                tail = [self.evaluate_node(n, env) for n in node[1:]]
+                function = self.functions[head]
+                return function(*tail)
         else:
-            if self.is_string(node) or self.is_number(node):
-                return node
-            else:
-                return self.env.symbol_value(node)
+            return env.symbol_value(node)
 
 
-    def should_not_evaluate(self, node):
+    def handle_special_form(self, head, tail, env):
+        if head == "defvar" or head == "setq":
+            return self.defvar(*tail, env)
+        if head == "symbol-value":
+            return self.symbol_value(*tail, env)
+        elif head == "if":
+            return self.doif(*tail, env)
+
+
+    def is_quoted(self, node):
         return isinstance(node, str) and node.startswith("'")
 
         
     def is_special_form(self, symbol):
-        return symbol in ["defvar", "setq", "if"]
+        return symbol in ["defvar", "setq", "symbol-value", "if"]
 
 
     def is_string(self, x):
@@ -76,17 +69,22 @@ class Evaluator:
         return isinstance(x, (int, float))
 
 
-    def doif(self, cond, dothen, doelse):
-        cond_value = self.evaluate_node(cond)
+    def defvar(self, name, value, env):
+        env.variables.data[name] = self.evaluate_node(value, env)
+        return name
+
+
+    def symbol_value(self, tail, env):
+        return env.symbol_value(self.evaluate_node(tail, env))
+
+
+    def doif(self, cond, dothen, doelse, env):
+        cond_value = self.evaluate_node(cond, env)
         
         if cond_value is not False and cond_value != "False":
-            return self.evaluate_node(dothen)
+            return self.evaluate_node(dothen, env)
         else:
-            return self.evaluate_node(doelse)
-
-    def defvar(self, name, value):
-        self.env.variables.data[name] = self.evaluate_node(value)
-        return name
+            return self.evaluate_node(doelse, env)
 
 
 class Variables():

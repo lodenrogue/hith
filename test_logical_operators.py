@@ -1,15 +1,10 @@
 import unittest
-from evaluate import Evaluator, Env, Variables
+from evaluate import Evaluator
 
 class TestLogicalOperators(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        cls.env = Env(variables=Variables(), parent=None)
-        cls.evaluate = Evaluator(cls.env).evaluate
-
-    def tearDown(self):
-        self.env.clear_variables()
+    def setUp(self):
+        self.evaluate = Evaluator().evaluate
 
     def test_greater_than(self):
         self.assertEqual(self.evaluate("(> 2 1)"), True)
