@@ -10,7 +10,6 @@ class Evaluator:
         self.global_env = Env(Variables(), BuiltInFunctions(), parent=None)
 
 
-
     def evaluate(self, exp):
         ast = self.parser.build_ast(self.lexer.tokenize(exp))
         return self.evaluate_node(ast, self.global_env)
@@ -41,7 +40,7 @@ class Evaluator:
         elif head == "if":
             return self.doif(*tail, env)
         elif head == "defun":
-            return self.defun(*tail, env)
+            return self.defun(name=tail[0], params=tail[1], body=tail[2:], env=env)
 
 
     def is_quoted(self, node):
@@ -159,5 +158,12 @@ class Function:
     def __call__(self, *args):
         variables = Variables()
         variables.data.update(zip(self.params, args))
-        return self.evaluator.evaluate_node(self.body, Env(variables, FunctionScope(), parent=self.env))
+
+        local_env = Env(variables, FunctionScope(), parent=self.env)
+        result = None
+
+        for expression in self.body:
+            result = self.evaluator.evaluate_node(expression, local_env)
+
+        return result
             

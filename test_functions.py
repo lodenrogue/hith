@@ -15,5 +15,14 @@ class TestFunctions(unittest.TestCase):
         self.evaluate("(defvar x 10)")
         self.assertEqual(self.evaluate("(add20 x)"), 30)
 
+    def test_function_with_multiple_expressions(self):
+        self.evaluate("""(defun multi-expressions (x y)
+                           (setq total (+ x y))
+                           (setq total (* total y))
+                           (+ total y))""")
+
+        self.assertEqual(self.evaluate("(multi-expressions 2 3)"), 18)
+
+
 if __name__ == "__main__":
     unittest.main()
