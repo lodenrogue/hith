@@ -181,6 +181,24 @@ x
 10000
 ```
 
+## Nested Functions (Lexical Scoping)
+
+Hith supports nested function definitions. When a function is defined
+inside another function, it captures the environment of its
+parent. This allows the inner function to access variables from the
+outer function's scope, creating a closure.
+
+### Example
+
+```lisp
+>>> (defun outer-func (x)
+      (defun inner-func (x) (+ x 1))
+      (+ x (inner-func 10)))
+
+>>> (outer-func 5)
+16
+```
+
 ## Built-in Functions
 
 | Function | Description |
@@ -295,6 +313,5 @@ python test_lexer.py
 
 ## Current Limitations
 
-* Function bodies currently consist of a single expression
 * No lists
 * Limited error handling
