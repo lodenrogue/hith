@@ -1,6 +1,6 @@
 # Hith
 
-A Lisp interpreter written in Python.
+A Lisp interpreter written in Python from scratch. No AI was used.
 
 Hith supports:
 
