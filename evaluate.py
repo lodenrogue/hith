@@ -50,17 +50,20 @@ class Evaluator:
         if head == "symbol-value":
             return self.symbol_value(*tail, env)
 
-        elif head == "if":
+        if head == "if":
             return self.doif(*tail, env)
 
-        elif head == "defun":
+        if head == "defun":
             return self.defun(name=tail[0], params=tail[1], body=tail[2:], env=env)
 
-        elif head == "message":
+        if head == "message":
             return self.message(*tail, env)
 
-        elif head == "length":
+        if head == "length":
             return self.length(*tail, env=env)
+
+        if head == "progn":
+            return self.progn(*tail, env=env)
 
 
     def is_quoted(self, node):
@@ -76,7 +79,8 @@ class Evaluator:
             "if",
             "defun",
             "message",
-            "length"
+            "length",
+            "progn"
         ]
 
     def is_string(self, x):
@@ -127,6 +131,15 @@ class Evaluator:
             return len(value)
 
         return len(value) - 2
+
+
+    def progn(self, *args, env):
+        result = None
+
+        for arg in args:
+            result = self.evaluate_node(arg, env)
+
+        return result
 
 
 class Variables:
