@@ -79,7 +79,6 @@ class Evaluator:
             "length"
         ]
 
-
     def is_string(self, x):
         return isinstance(x, str) and len(x) > 0 and x.startswith("\"")
 
@@ -164,7 +163,15 @@ class BuiltInFunctions(FunctionScope):
             ">=": lambda x, y: x >= y,
             "<=": lambda x, y: x <= y,
             "eq": lambda x, y: x == y,
+            "nth": self.nth
         }
+
+
+    def nth(self, index, items):
+        if len(items) > index:
+            return items[index]
+
+        return None
 
 
 class Env:

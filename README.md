@@ -18,6 +18,7 @@ Hith supports:
 * S-expression syntax
 * Printing to standard out
 * Running scripts
+* Lists
 
 ## Why the name Hith?
 
@@ -331,5 +332,4 @@ python test_lexer.py
 
 ## Current Limitations
 
-* No lists
 * Limited error handling
