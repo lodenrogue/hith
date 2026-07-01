@@ -51,6 +51,8 @@ class Evaluator:
             return self.defun(name=tail[0], params=tail[1], body=tail[2:], env=env)
         elif head == "message":
             return self.message(*tail, env)
+        elif head == "length":
+            return self.length(*tail, env)
 
 
     def is_quoted(self, node):
@@ -58,7 +60,15 @@ class Evaluator:
 
         
     def is_special_form(self, symbol):
-        return symbol in ["defvar", "setq", "symbol-value", "if", "defun", "message"]
+        return symbol in [
+            "defvar",
+            "setq",
+            "symbol-value",
+            "if",
+            "defun",
+            "message",
+            "length"
+        ]
 
 
     def is_string(self, x):
@@ -91,10 +101,23 @@ class Evaluator:
         env.functions.data[name] = Function(self, params, body, env)
         return name
 
+
     def message(self, body, env):
         string = self.evaluate_node(body, env)
         print(string)
         return string
+
+
+    def length(self, arg, env):
+        value = self.evaluate_node(arg, env)
+
+        if self.is_string(value):
+            # 2 is the length of the two enclosing quote marks
+            return len(value) - 2
+
+        # TODO: length of lists
+        return -1
+    
         
 
 class Variables:
@@ -112,7 +135,7 @@ class FunctionScope:
 
     def __init__(self):
         self.data = {}
-    
+        
 
 class BuiltInFunctions(FunctionScope):
 
@@ -181,7 +204,7 @@ class Function:
             result = self.evaluator.evaluate_node(expression, local_env)
 
         return result
-            
+    
 
 class UndefinedFunctionException(Exception):
     """Raised when trying to access an undefined function"""
