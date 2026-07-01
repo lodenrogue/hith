@@ -176,7 +176,8 @@ class BuiltInFunctions(FunctionScope):
             ">=": lambda x, y: x >= y,
             "<=": lambda x, y: x <= y,
             "eq": lambda x, y: x == y,
-            "nth": self.nth
+            "nth": self.nth,
+            "exit": lambda: exit()
         }
 
 
