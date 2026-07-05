@@ -40,5 +40,6 @@ class TestParser(unittest.TestCase):
             self.parser.build_ast(self.lexer.tokenize(SPACES_EXAMPLE)),
             [["defvar", "x", "\"hello() 33.23 world\""]])
         
+
 if __name__ == "__main__":
     unittest.main()

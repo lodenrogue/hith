@@ -1,6 +1,7 @@
 import unittest
 from evaluate import Evaluator
 
+
 class TestWhile(unittest.TestCase):
 
     def setUp(self):

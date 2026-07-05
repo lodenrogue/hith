@@ -1,5 +1,6 @@
 from lexer import Lexer
 from parser import Parser
+from htypes import Atom, Integer, Float
 
 
 class Evaluator:
@@ -20,11 +21,14 @@ class Evaluator:
 
 
     def evaluate_node(self, node, env):
-        if self.is_string(node) or self.is_number(node) or self.is_quoted(node):
-            return node
+        if self.is_atom(node):
+            if self.is_integer(node) or self.is_float(node):
+                return node
+        # if self.is_string(node) or self.is_number(node) or self.is_quoted(node):
+        #     return node
 
-        if not isinstance(node, list):
-            return env.symbol_value(node)
+        # if not isinstance(node, list):
+        #     return env.symbol_value(node)
 
         raw_head, *raw_args = node
         head = self.evaluate_node(raw_head, env) if isinstance(raw_head, list) else raw_head
@@ -38,7 +42,7 @@ class Evaluator:
 
         evaluated_args = [self.evaluate_node(n, env) for n in raw_args]
         return function(*evaluated_args)
-
+    
 
     def handle_special_form(self, head, tail, env):
         if head == "quote":
@@ -86,6 +90,20 @@ class Evaluator:
             "progn",
             "while"
         ]
+
+
+    def is_atom(self, node):
+        return isinstance(node, Atom)
+        # return self.global_env.functions.data["atom"](node)
+
+
+    def is_integer(self, node):
+        return isinstance(node, Integer)
+
+
+    def is_float(self, node):
+        return isinstance(node, Float)
+
 
     def is_string(self, x):
         return isinstance(x, str) and len(x) > 0 and x.startswith("\"")
@@ -177,6 +195,9 @@ class BuiltInFunctions(FunctionScope):
 
     def __create_init_values(self):
         return {
+            "atom": lambda e: isinstance(e, Atom),
+            "intp": lambda e: isinstance(e, Integer),
+            "floatp": lambda e: isinstance(e, Float),
             "+": lambda x, y: x + y,
             "-": lambda x, y: x - y,
             "*": lambda x, y: x * y,
