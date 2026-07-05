@@ -28,7 +28,7 @@ class Evaluator:
                 return node
 
         raw_head, *raw_args = node
-        head = self.evaluate_node(raw_head, env).value if isinstance(raw_head, list) else raw_head.value
+        head = self.evaluate_node(raw_head, env) if isinstance(raw_head, list) else raw_head
 
         if self.is_special_form(head):
             return self.handle_special_form(head, raw_args, env)
@@ -42,6 +42,8 @@ class Evaluator:
     
 
     def handle_special_form(self, head, tail, env):
+        head = head.value
+
         if head == "quote":
             return self.quote(tail[0])
 
@@ -75,7 +77,7 @@ class Evaluator:
 
         
     def is_special_form(self, symbol):
-        return symbol in [
+        return symbol.value in [
             "quote",
             "defvar",
             "setq",
@@ -123,7 +125,7 @@ class Evaluator:
 
 
     def doif(self, cond, dothen, doelse, env):
-        cond_value = self.evaluate_node(cond, env)
+        cond_value = self.evaluate_node(cond, env).value
         
         if cond_value is not False and cond_value != "False":
             return self.evaluate_node(dothen, env)
@@ -240,8 +242,8 @@ class Env:
             return None
 
     def function(self, symbol):
-        if symbol in self.functions.data:
-            return self.functions.data[symbol]
+        if symbol.value in self.functions.data:
+            return self.functions.data[symbol.value]
         elif self.parent:
             return self.parent.function(symbol)
         else:
