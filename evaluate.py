@@ -163,7 +163,7 @@ class Evaluator:
 
 
     def dowhile(self, condition, body, env):
-        while self.evaluate_node(condition, env):
+        while self.evaluate_node(condition, env).value:
             for expression in body:
                 self.evaluate_node(expression, env)
 
