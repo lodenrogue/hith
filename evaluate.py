@@ -54,7 +54,10 @@ class Evaluator:
             return self.symbol_value(*tail, env)
 
         if head == "if":
-            return self.doif(*tail, env)
+            cond = tail[0]
+            dothen = tail[1]
+            doelse = tail[2] if len(tail) == 3 else None
+            return self.doif(cond, dothen, doelse, env=env)
 
         if head == "defun":
             return self.defun(name=tail[0], params=tail[1], body=tail[2:], env=env)
@@ -130,7 +133,9 @@ class Evaluator:
         if cond_value is not False and cond_value != "False":
             return self.evaluate_node(dothen, env)
         else:
-            return self.evaluate_node(doelse, env)
+            if doelse:
+                return self.evaluate_node(doelse, env)
+            return None
 
 
     def defun(self, name, params, body, env):

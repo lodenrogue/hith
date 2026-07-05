@@ -28,6 +28,9 @@ class TestIf(unittest.TestCase):
     def test_eval_else(self):
         self.assertEqual(self.evaluate("(if False (+ 1 2) (+ 2 3))"), Integer(5))
 
+    def test_no_else(self):
+        self.assertEqual(self.evaluate("(if False 1)"), None)
+
 
 if __name__ == "__main__":
     unittest.main()
