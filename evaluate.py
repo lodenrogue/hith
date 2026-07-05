@@ -134,7 +134,7 @@ class Evaluator:
 
 
     def defun(self, name, params, body, env):
-        env.functions.data[name] = Function(self, params, body, env)
+        env.functions.data[name.value] = Function(self, params, body, env)
         return name
 
 
@@ -267,7 +267,8 @@ class Function:
 
     def __call__(self, *args):
         variables = Variables()
-        variables.data.update(zip(self.params, args))
+        params = [param.value for param in self.params]
+        variables.data.update(zip(params, args))
 
         local_env = Env(variables, FunctionScope(), parent=self.env)
         result = None
