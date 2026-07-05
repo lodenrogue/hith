@@ -35,7 +35,7 @@ class Evaluator:
 
         function = env.function(head)
         if function == None:
-            raise UndefinedFunctionException(f'Function with name {head} is undefined')
+            raise UndefinedFunctionException(f'Function with name {head.value} is undefined')
 
         evaluated_args = [self.evaluate_node(n, env) for n in raw_args]
         return function(*evaluated_args)
@@ -140,7 +140,7 @@ class Evaluator:
 
     def message(self, body, env):
         string = self.evaluate_node(body, env)
-        print(string)
+        print(string.value)
         return string
 
 
