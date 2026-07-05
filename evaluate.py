@@ -148,9 +148,9 @@ class Evaluator:
         sequence = self.evaluate_node(args[0], env)
 
         if isinstance(sequence, list):
-            return len(sequence)
+            return Integer(len(sequence))
 
-        return len(sequence.value) - 2
+        return Integer(len(sequence.value) - 2)
 
 
     def progn(self, *args, env):
