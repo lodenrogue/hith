@@ -14,6 +14,7 @@ class TestTypes(unittest.TestCase):
         self.assertTrue(self.evaluate("(atom 10)"))
         self.assertTrue(self.evaluate("(atom 12.23)"))
         self.assertTrue(self.evaluate("(atom \"test\")"))
+        self.assertTrue(self.evaluate("(defvar x 10) (atom x)"))
 
     def test_integer(self):
         self.assertTrue(self.evaluate("(intp 10)"))
@@ -23,7 +24,9 @@ class TestTypes(unittest.TestCase):
 
     def test_string(self):
         self.assertTrue(self.evaluate("(stringp \"test\")"))
-        
+
+    def test_symbol(self):
+        self.assertTrue(self.evaluate("(defvar x 10) (symbolp (quote x))"))
 
 if __name__ == "__main__":
     unittest.main()

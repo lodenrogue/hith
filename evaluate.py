@@ -1,6 +1,6 @@
 from lexer import Lexer
 from parser import Parser
-from htypes import Atom, Integer, Float, String
+from htypes import Atom, Integer, Float, String, Symbol
 
 
 class Evaluator:
@@ -22,16 +22,13 @@ class Evaluator:
 
     def evaluate_node(self, node, env):
         if self.is_atom(node):
-            if self.is_integer(node) or self.is_float(node) or self.is_string(node):
+            if self.is_symbol(node):
+                return env.symbol_value(node.value)
+            else:
                 return node
-        # if self.is_string(node) or self.is_number(node) or self.is_quoted(node):
-        #     return node
-
-        # if not isinstance(node, list):
-        #     return env.symbol_value(node)
 
         raw_head, *raw_args = node
-        head = self.evaluate_node(raw_head, env) if isinstance(raw_head, list) else raw_head
+        head = self.evaluate_node(raw_head, env).value if isinstance(raw_head, list) else raw_head.value
 
         if self.is_special_form(head):
             return self.handle_special_form(head, raw_args, env)
@@ -49,7 +46,7 @@ class Evaluator:
             return self.quote(tail[0])
 
         if head == "defvar" or head == "setq":
-            return self.defvar(*tail, env)
+            return self.defvar(name=tail[0].value, value=tail[1], env=env)
 
         if head == "symbol-value":
             return self.symbol_value(*tail, env)
@@ -94,6 +91,10 @@ class Evaluator:
 
     def is_atom(self, node):
         return self.global_env.functions.data["atom"](node)
+
+
+    def is_symbol(self, node):
+        return self.global_env.functions.data["symbolp"](node)
 
 
     def is_integer(self, node):
@@ -194,6 +195,7 @@ class BuiltInFunctions(FunctionScope):
             "intp": lambda e: isinstance(e, Integer),
             "floatp": lambda e: isinstance(e, Float),
             "stringp": lambda e: isinstance(e, String),
+            "symbolp": lambda e: isinstance(e, Symbol),
             "+": lambda x, y: x + y,
             "-": lambda x, y: x - y,
             "*": lambda x, y: x * y,

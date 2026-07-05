@@ -20,3 +20,9 @@ class String(Atom):
 
     def __init__(self, value):
         super().__init__(value)
+
+
+class Symbol(Atom):
+
+    def __init__(self, value):
+        super().__init__(value)

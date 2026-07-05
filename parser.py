@@ -1,5 +1,5 @@
 import json
-from htypes import Atom, Integer, Float, String
+from htypes import Atom, Integer, Float, String, Symbol
 
 class Parser:
 
@@ -24,15 +24,20 @@ class Parser:
 
     
     def atomize(self, token):
+        if token in ("(", ")"):
+            return token
+
         try:
             return Integer(int(token))
         except ValueError:
             try:
                 return Float(float(token))
             except ValueError:
+
                  if self.is_string(token):
                      return String(token)
-                 return token
+                 
+                 return Symbol(token)
 
 
     def is_string(self, token):
