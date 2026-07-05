@@ -221,6 +221,7 @@ class BuiltInFunctions(FunctionScope):
 
 
     def nth(self, index, items):
+        index = index.value
         if len(items) > index:
             return items[index]
 
