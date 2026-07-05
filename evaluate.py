@@ -1,6 +1,6 @@
 from lexer import Lexer
 from parser import Parser
-from htypes import Atom, Integer, Float
+from htypes import Atom, Integer, Float, String
 
 
 class Evaluator:
@@ -22,7 +22,7 @@ class Evaluator:
 
     def evaluate_node(self, node, env):
         if self.is_atom(node):
-            if self.is_integer(node) or self.is_float(node):
+            if self.is_integer(node) or self.is_float(node) or self.is_string(node):
                 return node
         # if self.is_string(node) or self.is_number(node) or self.is_quoted(node):
         #     return node
@@ -93,24 +93,19 @@ class Evaluator:
 
 
     def is_atom(self, node):
-        return isinstance(node, Atom)
-        # return self.global_env.functions.data["atom"](node)
+        return self.global_env.functions.data["atom"](node)
 
 
     def is_integer(self, node):
-        return isinstance(node, Integer)
+        return self.global_env.functions.data["intp"](node)
 
 
     def is_float(self, node):
-        return isinstance(node, Float)
+        return self.global_env.functions.data["floatp"](node)
 
 
-    def is_string(self, x):
-        return isinstance(x, str) and len(x) > 0 and x.startswith("\"")
-
-
-    def is_number(self, x):
-        return isinstance(x, (int, float))
+    def is_string(self, node):
+        return self.global_env.functions.data["stringp"](node)
 
 
     def quote(self, arg):
@@ -198,6 +193,7 @@ class BuiltInFunctions(FunctionScope):
             "atom": lambda e: isinstance(e, Atom),
             "intp": lambda e: isinstance(e, Integer),
             "floatp": lambda e: isinstance(e, Float),
+            "stringp": lambda e: isinstance(e, String),
             "+": lambda x, y: x + y,
             "-": lambda x, y: x - y,
             "*": lambda x, y: x * y,
