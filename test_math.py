@@ -1,5 +1,7 @@
 import unittest
 from evaluate import Evaluator
+from htypes import Integer, Float
+
 
 class TestMath(unittest.TestCase):
 
@@ -7,13 +9,13 @@ class TestMath(unittest.TestCase):
         self.evaluate = Evaluator().evaluate
 
     def test_number(self):
-        self.assertEqual(self.evaluate("42").value, 42)
+        self.assertEqual(self.evaluate("42"), Integer(42))
 
     def test_simple_sum(self):
-        self.assertEqual(self.evaluate("(+ 1 2)").value, 3)
+        self.assertEqual(self.evaluate("(+ 1 2)"), Integer(3))
 
     def test_nested_sum(self):
-        self.assertEqual(self.evaluate("(+ 1 (+ (+ 2.23 5) 3))").value, 11.23)
+        self.assertEqual(self.evaluate("(+ 1 (+ (+ 2.23 5) 3))"), Float(11.23))
 
     def test_sum_variables(self):
         self.evaluate("(defvar a 4)")

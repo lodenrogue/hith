@@ -198,10 +198,10 @@ class BuiltInFunctions(FunctionScope):
             "floatp": lambda e: isinstance(e, Float),
             "stringp": lambda e: isinstance(e, String),
             "symbolp": lambda e: isinstance(e, Symbol),
-            "+": lambda x, y: Float(x.value + y.value),
-            "-": lambda x, y: Float(x.value - y.value),
-            "*": lambda x, y: Float(x.value * y.value),
-            "/": lambda x, y: Float(x.value / y.value),
+            "+": lambda x, y: self.cast_arithmetic(x, y, x.value + y.value),
+            "-": lambda x, y: self.cast_arithmetic(x, y, x.value - y.value),
+            "*": lambda x, y: self.cast_arithmetic(x, y, x.value * y.value),
+            "/": lambda x, y: self.cast_arithmetic(x, y, x.value / y.value),
             ">": lambda x, y: Boolean(x.value > y.value),
             "<": lambda x, y: Boolean(x.value < y.value),
             ">=": lambda x, y: Boolean(x.value >= y.value),
@@ -211,6 +211,13 @@ class BuiltInFunctions(FunctionScope):
             "exit": lambda: exit(),
             "file-read-lines": self.file_read_lines
         }
+
+
+    def cast_arithmetic(self, x, y, result):
+        if isinstance(x, Float) or isinstance(y, Float):
+            return Float(result)
+
+        return Integer(result)
 
 
     def nth(self, index, items):
