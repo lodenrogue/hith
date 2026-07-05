@@ -1,4 +1,5 @@
 import json
+from htypes import Atom, Boolean, Integer, Float, String, Symbol
 
 class Parser:
 
@@ -7,7 +8,7 @@ class Parser:
         current_node = tree
 
         for raw_token in tokens:
-            token = self.__atomize(raw_token)
+            token = self.atomize(raw_token)
 
             if token == "(":
                 new_node = Node([])
@@ -19,25 +20,41 @@ class Parser:
             else:
                 current_node.data.append(token)
 
-        return self.__unwrap_node(tree)
+        return self.unwrap_node(tree)
 
     
-    def __atomize(self, token):
+    def atomize(self, token):
+        if token in ("(", ")"):
+            return token
+
         try:
-            return int(token)
+            return Integer(int(token))
         except ValueError:
             try:
-                return float(token)
+                return Float(float(token))
             except ValueError:
-                return token
+                if token == "True":
+                    return Boolean(True)
+
+                if token == "False":
+                    return Boolean(False)
+
+                if self.is_string(token):
+                     return String(token)
+                 
+                return Symbol(token)
 
 
-    def __unwrap_node(self, node):
+    def is_string(self, token):
+       return token.startswith("\"") and token.endswith("\"")
+   
+
+    def unwrap_node(self, node):
         unwrapped = []
 
         for token in node.data:
             if isinstance(token, Node):
-                unwrapped.append(self.__unwrap_node(token))
+                unwrapped.append(self.unwrap_node(token))
             else:
                 unwrapped.append(token)
 

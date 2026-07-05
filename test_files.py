@@ -1,6 +1,8 @@
 import os
 import unittest
 from evaluate import Evaluator
+from htypes import String
+
 
 TEST_FILE = "test.txt"
 
@@ -22,7 +24,7 @@ class TestFiles(unittest.TestCase):
         script = f"""(defvar file "{TEST_FILE}")
                     (file-read-lines file)"""
 
-        self.assertEqual(self.evaluate(script), ["first", "second", "third"])
+        self.assertEqual(self.evaluate(script), [String("first"), String("second"), String("third")])
 
 
 if __name__ == "__main__":

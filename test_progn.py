@@ -1,5 +1,7 @@
 import unittest
 from evaluate import Evaluator
+from htypes import Integer
+
 
 class TestProgn(unittest.TestCase):
 
@@ -10,13 +12,13 @@ class TestProgn(unittest.TestCase):
         self.assertEqual(self.evaluate("(progn)"), None)
 
     def test_single_expression(self):
-        self.assertEqual(self.evaluate("(progn (+ 2 3))"), 5)
+        self.assertEqual(self.evaluate("(progn (+ 2 3))"), Integer(5))
 
     def test_multi_expressions(self):
-         self.assertEqual(self.evaluate("(progn (+ 2 3) (* 3 4))"), 12)
+         self.assertEqual(self.evaluate("(progn (+ 2 3) (* 3 4))"), Integer(12))
 
     def test_runs_every_expression(self):
-        self.assertEqual(self.evaluate("(progn (setq x 10) (setq y 20) (+ x y))"), 30)
+        self.assertEqual(self.evaluate("(progn (setq x 10) (setq y 20) (+ x y))"), Integer(30))
 
 if __name__ == "__main__":
     unittest.main()

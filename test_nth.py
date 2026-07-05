@@ -1,5 +1,7 @@
 import unittest
 from evaluate import Evaluator
+from htypes import Integer
+
 
 class TestNth(unittest.TestCase):
 
@@ -10,13 +12,13 @@ class TestNth(unittest.TestCase):
         self.assertEqual(self.evaluate("(nth 0 (quote ()))"), None)
 
     def test_first_item(self):
-        self.assertEqual(self.evaluate("(nth 0 (quote (123 456 789)))"), 123)
+        self.assertEqual(self.evaluate("(nth 0 (quote (123 456 789)))"), Integer(123))
 
     def test_middle_item(self):
-        self.assertEqual(self.evaluate("(nth 1 (quote (123 456 789)))"), 456)
+        self.assertEqual(self.evaluate("(nth 1 (quote (123 456 789)))"), Integer(456))
 
     def test_last_item(self):
-        self.assertEqual(self.evaluate("(nth 2 (quote (123 456 789)))"), 789)
+        self.assertEqual(self.evaluate("(nth 2 (quote (123 456 789)))"), Integer(789))
 
 
 if __name__ == "__main__":

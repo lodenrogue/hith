@@ -1,5 +1,6 @@
 from lexer import Lexer
 from parser import Parser
+from htypes import Atom, Boolean, Integer, Float, String, Symbol
 
 
 class Evaluator:
@@ -20,11 +21,11 @@ class Evaluator:
 
 
     def evaluate_node(self, node, env):
-        if self.is_string(node) or self.is_number(node) or self.is_quoted(node):
-            return node
-
-        if not isinstance(node, list):
-            return env.symbol_value(node)
+        if self.is_atom(node):
+            if self.is_symbol(node):
+                return env.symbol_value(node)
+            else:
+                return node
 
         raw_head, *raw_args = node
         head = self.evaluate_node(raw_head, env) if isinstance(raw_head, list) else raw_head
@@ -34,18 +35,20 @@ class Evaluator:
 
         function = env.function(head)
         if function == None:
-            raise UndefinedFunctionException(f'Function with name {head} is undefined')
+            raise UndefinedFunctionException(f'Function with name {head.value} is undefined')
 
         evaluated_args = [self.evaluate_node(n, env) for n in raw_args]
         return function(*evaluated_args)
-
+    
 
     def handle_special_form(self, head, tail, env):
+        head = head.value
+
         if head == "quote":
             return self.quote(tail[0])
 
         if head == "defvar" or head == "setq":
-            return self.defvar(*tail, env)
+            return self.defvar(name=tail[0], value=tail[1], env=env)
 
         if head == "symbol-value":
             return self.symbol_value(*tail, env)
@@ -74,7 +77,7 @@ class Evaluator:
 
         
     def is_special_form(self, symbol):
-        return symbol in [
+        return symbol.value in [
             "quote",
             "defvar",
             "setq",
@@ -87,12 +90,25 @@ class Evaluator:
             "while"
         ]
 
-    def is_string(self, x):
-        return isinstance(x, str) and len(x) > 0 and x.startswith("\"")
+
+    def is_atom(self, node):
+        return self.global_env.functions.data["atom"](node)
 
 
-    def is_number(self, x):
-        return isinstance(x, (int, float))
+    def is_symbol(self, node):
+        return self.global_env.functions.data["symbolp"](node)
+
+
+    def is_integer(self, node):
+        return self.global_env.functions.data["intp"](node)
+
+
+    def is_float(self, node):
+        return self.global_env.functions.data["floatp"](node)
+
+
+    def is_string(self, node):
+        return self.global_env.functions.data["stringp"](node)
 
 
     def quote(self, arg):
@@ -100,7 +116,7 @@ class Evaluator:
 
 
     def defvar(self, name, value, env):
-        env.variables.data[name] = self.evaluate_node(value, env)
+        env.variables.data[name.value] = self.evaluate_node(value, env)
         return name
 
 
@@ -109,7 +125,7 @@ class Evaluator:
 
 
     def doif(self, cond, dothen, doelse, env):
-        cond_value = self.evaluate_node(cond, env)
+        cond_value = self.evaluate_node(cond, env).value
         
         if cond_value is not False and cond_value != "False":
             return self.evaluate_node(dothen, env)
@@ -118,23 +134,23 @@ class Evaluator:
 
 
     def defun(self, name, params, body, env):
-        env.functions.data[name] = Function(self, params, body, env)
+        env.functions.data[name.value] = Function(self, params, body, env)
         return name
 
 
     def message(self, body, env):
         string = self.evaluate_node(body, env)
-        print(string)
+        print(string.value)
         return string
 
 
     def length(self, *args, env):
-        value = self.evaluate_node(args[0], env)
+        sequence = self.evaluate_node(args[0], env)
 
-        if isinstance(value, list):
-            return len(value)
+        if isinstance(sequence, list):
+            return Integer(len(sequence))
 
-        return len(value) - 2
+        return Integer(len(sequence.value) - 2)
 
 
     def progn(self, *args, env):
@@ -147,7 +163,7 @@ class Evaluator:
 
 
     def dowhile(self, condition, body, env):
-        while self.evaluate_node(condition, env):
+        while self.evaluate_node(condition, env).value:
             for expression in body:
                 self.evaluate_node(expression, env)
 
@@ -177,32 +193,46 @@ class BuiltInFunctions(FunctionScope):
 
     def __create_init_values(self):
         return {
-            "+": lambda x, y: x + y,
-            "-": lambda x, y: x - y,
-            "*": lambda x, y: x * y,
-            "/": lambda x, y: x / y,
-            ">": lambda x, y: x > y,
-            "<": lambda x, y: x < y,
-            ">=": lambda x, y: x >= y,
-            "<=": lambda x, y: x <= y,
-            "eq": lambda x, y: x == y,
+            "atom": lambda e: isinstance(e, Atom),
+            "intp": lambda e: isinstance(e, Integer),
+            "floatp": lambda e: isinstance(e, Float),
+            "stringp": lambda e: isinstance(e, String),
+            "symbolp": lambda e: isinstance(e, Symbol),
+            "+": lambda x, y: self.cast_arithmetic(x, y, x.value + y.value),
+            "-": lambda x, y: self.cast_arithmetic(x, y, x.value - y.value),
+            "*": lambda x, y: self.cast_arithmetic(x, y, x.value * y.value),
+            "/": lambda x, y: self.cast_arithmetic(x, y, x.value / y.value),
+            ">": lambda x, y: Boolean(x.value > y.value),
+            "<": lambda x, y: Boolean(x.value < y.value),
+            ">=": lambda x, y: Boolean(x.value >= y.value),
+            "<=": lambda x, y: Boolean(x.value <= y.value),
+            "eq": lambda x, y: Boolean(x.value == y.value),
             "nth": self.nth,
             "exit": lambda: exit(),
             "file-read-lines": self.file_read_lines
         }
 
 
+    def cast_arithmetic(self, x, y, result):
+        if isinstance(x, Float) or isinstance(y, Float):
+            return Float(result)
+
+        return Integer(result)
+
+
     def nth(self, index, items):
+        index = index.value
         if len(items) > index:
             return items[index]
 
         return None
 
     def file_read_lines(self, path):
+        path = path.value
         # remove the surrounding quotes
         path = path[1:-1]
         with open(path, "r") as f:
-            return f.read().splitlines()
+            return [String(line) for line in f.read().splitlines()]
 
 
 class Env:
@@ -213,16 +243,16 @@ class Env:
         self.parent = parent
 
     def symbol_value(self, symbol):
-        if symbol in self.variables.data:
-            return self.variables.data[symbol]
+        if symbol.value in self.variables.data:
+            return self.variables.data[symbol.value]
         elif self.parent:
             return self.parent.symbol_value(symbol)
         else:
             return None
 
     def function(self, symbol):
-        if symbol in self.functions.data:
-            return self.functions.data[symbol]
+        if symbol.value in self.functions.data:
+            return self.functions.data[symbol.value]
         elif self.parent:
             return self.parent.function(symbol)
         else:
@@ -239,7 +269,8 @@ class Function:
 
     def __call__(self, *args):
         variables = Variables()
-        variables.data.update(zip(self.params, args))
+        params = [param.value for param in self.params]
+        variables.data.update(zip(params, args))
 
         local_env = Env(variables, FunctionScope(), parent=self.env)
         result = None

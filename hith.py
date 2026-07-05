@@ -29,7 +29,7 @@ def start_repl():
                     result = evaluate(exp)
 
                 # print results here
-                print(result)
+                print(result.value)
         except Exception as e:
             print(e)
 
