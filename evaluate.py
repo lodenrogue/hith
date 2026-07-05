@@ -227,10 +227,11 @@ class BuiltInFunctions(FunctionScope):
         return None
 
     def file_read_lines(self, path):
+        path = path.value
         # remove the surrounding quotes
         path = path[1:-1]
         with open(path, "r") as f:
-            return f.read().splitlines()
+            return [String(line) for line in f.read().splitlines()]
 
 
 class Env:
