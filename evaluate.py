@@ -1,6 +1,6 @@
 from lexer import Lexer
 from parser import Parser
-from htypes import Atom, Integer, Float, String, Symbol
+from htypes import Atom, Boolean, Integer, Float, String, Symbol
 
 
 class Evaluator:
@@ -200,11 +200,11 @@ class BuiltInFunctions(FunctionScope):
             "-": lambda x, y: Float(x.value - y.value),
             "*": lambda x, y: Float(x.value * y.value),
             "/": lambda x, y: Float(x.value / y.value),
-            ">": lambda x, y: x.value > y.value,
-            "<": lambda x, y: x.value < y.value,
-            ">=": lambda x, y: x.value >= y.value,
-            "<=": lambda x, y: x.value <= y.value,
-            "eq": lambda x, y: x.value == y.value,
+            ">": lambda x, y: Boolean(x.value > y.value),
+            "<": lambda x, y: Boolean(x.value < y.value),
+            ">=": lambda x, y: Boolean(x.value >= y.value),
+            "<=": lambda x, y: Boolean(x.value <= y.value),
+            "eq": lambda x, y: Boolean(x.value == y.value),
             "nth": self.nth,
             "exit": lambda: exit(),
             "file-read-lines": self.file_read_lines

@@ -7,6 +7,12 @@ class Atom:
         return type(self) == type(other) and self.value == other.value
 
 
+class Boolean(Atom):
+
+    def __init__(self, value):
+        super().__init__(value)
+
+
 class Integer(Atom):
 
     def __init__(self, value):

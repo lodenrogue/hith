@@ -1,5 +1,5 @@
 import json
-from htypes import Atom, Integer, Float, String, Symbol
+from htypes import Atom, Boolean, Integer, Float, String, Symbol
 
 class Parser:
 
@@ -33,16 +33,21 @@ class Parser:
             try:
                 return Float(float(token))
             except ValueError:
+                if token == "True":
+                    return Boolean(True)
 
-                 if self.is_string(token):
+                if token == "False":
+                    return Boolean(False)
+
+                if self.is_string(token):
                      return String(token)
                  
-                 return Symbol(token)
+                return Symbol(token)
 
 
     def is_string(self, token):
        return token.startswith("\"") and token.endswith("\"")
-            
+   
 
     def unwrap_node(self, node):
         unwrapped = []
