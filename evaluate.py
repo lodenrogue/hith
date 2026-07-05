@@ -23,7 +23,7 @@ class Evaluator:
     def evaluate_node(self, node, env):
         if self.is_atom(node):
             if self.is_symbol(node):
-                return env.symbol_value(node.value)
+                return env.symbol_value(node)
             else:
                 return node
 
@@ -46,7 +46,7 @@ class Evaluator:
             return self.quote(tail[0])
 
         if head == "defvar" or head == "setq":
-            return self.defvar(name=tail[0].value, value=tail[1], env=env)
+            return self.defvar(name=tail[0], value=tail[1], env=env)
 
         if head == "symbol-value":
             return self.symbol_value(*tail, env)
@@ -114,7 +114,7 @@ class Evaluator:
 
 
     def defvar(self, name, value, env):
-        env.variables.data[name] = self.evaluate_node(value, env)
+        env.variables.data[name.value] = self.evaluate_node(value, env)
         return name
 
 
@@ -232,8 +232,8 @@ class Env:
         self.parent = parent
 
     def symbol_value(self, symbol):
-        if symbol in self.variables.data:
-            return self.variables.data[symbol]
+        if symbol.value in self.variables.data:
+            return self.variables.data[symbol.value]
         elif self.parent:
             return self.parent.symbol_value(symbol)
         else:
