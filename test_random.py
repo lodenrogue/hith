@@ -1,5 +1,6 @@
 import unittest
 from evaluate import Evaluator
+from htypes import Symbol
 
 
 class TestRandom(unittest.TestCase):
@@ -12,6 +13,10 @@ class TestRandom(unittest.TestCase):
 
     def test_random_range(self):
         self.assertTrue(self.evaluate("(intp (randrange 0 5)"))
+
+    def test_random_choice_list(self):
+        self.evaluate("(defvar x '(a b c))")
+        self.assertTrue(self.evaluate("(choice x)") in [Symbol("a"), Symbol("b"), Symbol("c")])
 
 
 if __name__ == "__main__":

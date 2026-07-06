@@ -1,2 +1,6 @@
 (defun randrange (lower upper)
   (round (+ lower (* (random) (- upper lower)))))
+
+(defun choice (list)
+  (setq size (length list))
+  (nth (randrange 0 size) list))
