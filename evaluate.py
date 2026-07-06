@@ -216,32 +216,31 @@ class Evaluator:
 
     def message(self, body, env):
         first = body[0]
-
         if isinstance(first, String):
             string = first
         else:
             string = self.evaluate_node(first, env)
 
         if len(body) == 1:
-            print(string.value)
+            print(self.strip_quotes(string.value))
             return string
 
-        args = [self.evaluate_node(arg, env).value for arg in body[1:]]
-
         formatted = string.value
-
         for arg in body[1:]:
             value = self.evaluate_node(arg, env).value
-
-            if isinstance(value, str) and value.startswith("\""):
-                value = value[1:-1]
-                
+            if isinstance(value, str):
+                value = self.strip_quotes(value)
             formatted = formatted.replace("%s", str(value), 1)
 
         result = String(formatted)
-        print(result.value)
+        print(self.strip_quotes(result.value))
         return result
 
+
+    def strip_quotes(self, value):
+        if isinstance(value, str) and len(value) >= 2 and value.startswith("\"") and value.endswith("\""):
+            return value[1:-1]
+        return value
 
 
     def length(self, *args, env):
