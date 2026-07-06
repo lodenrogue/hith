@@ -3,4 +3,4 @@
 
 (defun choice (list)
   (setq size (length list))
-  (nth (randrange 0 size) list))
+  (nth (randrange 0 (- 1 size)) list))

@@ -91,7 +91,7 @@ class Evaluator:
             return self.defmacro(name=tail[0], params=tail[1], body=tail[2:], env=env)
 
         if head == "message":
-            return self.message(*tail, env)
+            return self.message(body=tail, env=env)
 
         if head == "length":
             return self.length(*tail, env=env)
@@ -169,13 +169,13 @@ class Evaluator:
         result = []
         for item in items:
             if (isinstance(item, list) and len(item) == 2
-                    and isinstance(item[0], Symbol) and item[0].value == "unquote-splice"):
+                and isinstance(item[0], Symbol) and item[0].value == "unquote-splice"):
                 spliced = self.evaluate_node(item[1], env)
                 if not isinstance(spliced, list):
                     raise TypeError(",@ (unquote-splice) requires a list result")
                 result.extend(spliced)
             elif (isinstance(item, list) and len(item) == 2
-                    and isinstance(item[0], Symbol) and item[0].value == "unquote"):
+                  and isinstance(item[0], Symbol) and item[0].value == "unquote"):
                 result.append(self.evaluate_node(item[1], env))
             elif isinstance(item, list):
                 result.append(self._expand_backquote_list(item, env))
@@ -215,9 +215,33 @@ class Evaluator:
 
 
     def message(self, body, env):
-        string = self.evaluate_node(body, env)
-        print(string.value)
-        return string
+        first = body[0]
+
+        if isinstance(first, String):
+            string = first
+        else:
+            string = self.evaluate_node(first, env)
+
+        if len(body) == 1:
+            print(string.value)
+            return string
+
+        args = [self.evaluate_node(arg, env).value for arg in body[1:]]
+
+        formatted = string.value
+
+        for arg in body[1:]:
+            value = self.evaluate_node(arg, env).value
+
+            if isinstance(value, str) and value.startswith("\""):
+                value = value[1:-1]
+                
+            formatted = formatted.replace("%s", str(value), 1)
+
+        result = String(formatted)
+        print(result.value)
+        return result
+
 
 
     def length(self, *args, env):
