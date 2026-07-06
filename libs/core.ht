@@ -1,0 +1,6 @@
+(defmacro range (var lower upper &rest body)
+  `(progn
+     (setq ,var ,lower)
+     (while (< ,var ,upper)
+       ,@body
+       (setq ,var (+ ,var 1)))))

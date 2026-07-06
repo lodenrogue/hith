@@ -1,0 +1,2 @@
+(defun randrange (lower upper)
+  (round (+ lower (* (random) (- upper lower)))))

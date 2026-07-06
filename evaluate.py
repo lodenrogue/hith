@@ -1,6 +1,11 @@
+import os
+import random
 from lexer import Lexer
 from parser import Parser
 from htypes import Atom, Boolean, Integer, Float, String, Symbol
+
+
+LIBS_DIR = os.path.dirname(os.path.abspath(__file__)) + "/libs"
 
 
 class Evaluator:
@@ -8,12 +13,24 @@ class Evaluator:
     def __init__(self):
         self.lexer = Lexer()
         self.parser = Parser()
-        self.global_env = Env(Variables(), BuiltInFunctions(), parent=None)
+        self.global_env = Env(Variables(), BuiltInFunctions(), MacroScope(), parent=None)
+        self.load_libs()
+
+
+    def load_libs(self):
+        for filename in os.listdir(LIBS_DIR):
+            path = os.path.join(LIBS_DIR, filename)
+
+            if os.path.isfile(path):
+                with open(path, "r") as f:
+                    script = f.read()
+                    self.evaluate(script)
 
 
     def evaluate(self, exp):
         ast = self.parser.build_ast(self.lexer.tokenize(exp))
 
+        result = None
         for node in ast:
             result = self.evaluate_node(node, self.global_env)
 
@@ -33,8 +50,13 @@ class Evaluator:
         if self.is_special_form(head):
             return self.handle_special_form(head, raw_args, env)
 
+        macro = env.macro(head)
+        if macro is not None:
+            expansion = macro(*raw_args)
+            return self.evaluate_node(expansion, env)
+
         function = env.function(head)
-        if function == None:
+        if function is None:
             raise UndefinedFunctionException(f'Function with name {head.value} is undefined')
 
         evaluated_args = [self.evaluate_node(n, env) for n in raw_args]
@@ -46,6 +68,9 @@ class Evaluator:
 
         if head == "quote":
             return self.quote(tail[0])
+
+        if head == "backquote":
+            return self.backquote(tail[0], env)
 
         if head == "defvar" or head == "setq":
             return self.defvar(name=tail[0], value=tail[1], env=env)
@@ -61,6 +86,9 @@ class Evaluator:
 
         if head == "defun":
             return self.defun(name=tail[0], params=tail[1], body=tail[2:], env=env)
+
+        if head == "defmacro":
+            return self.defmacro(name=tail[0], params=tail[1], body=tail[2:], env=env)
 
         if head == "message":
             return self.message(*tail, env)
@@ -82,11 +110,13 @@ class Evaluator:
     def is_special_form(self, symbol):
         return symbol.value in [
             "quote",
+            "backquote",
             "defvar",
             "setq",
             "symbol-value",
             "if",
             "defun",
+            "defmacro",
             "message",
             "length",
             "progn",
@@ -118,6 +148,42 @@ class Evaluator:
         return arg
 
 
+    def backquote(self, template, env):
+        return self._expand_backquote(template, env)
+
+
+    def _expand_backquote(self, node, env):
+        if isinstance(node, list) and len(node) == 2 and isinstance(node[0], Symbol):
+            if node[0].value == "unquote":
+                return self.evaluate_node(node[1], env)
+            if node[0].value == "unquote-splice":
+                return self.evaluate_node(node[1], env)
+
+        if isinstance(node, list):
+            return self._expand_backquote_list(node, env)
+
+        return node
+
+
+    def _expand_backquote_list(self, items, env):
+        result = []
+        for item in items:
+            if (isinstance(item, list) and len(item) == 2
+                    and isinstance(item[0], Symbol) and item[0].value == "unquote-splice"):
+                spliced = self.evaluate_node(item[1], env)
+                if not isinstance(spliced, list):
+                    raise TypeError(",@ (unquote-splice) requires a list result")
+                result.extend(spliced)
+            elif (isinstance(item, list) and len(item) == 2
+                    and isinstance(item[0], Symbol) and item[0].value == "unquote"):
+                result.append(self.evaluate_node(item[1], env))
+            elif isinstance(item, list):
+                result.append(self._expand_backquote_list(item, env))
+            else:
+                result.append(item)
+        return result
+
+
     def defvar(self, name, value, env):
         env.variables.data[name.value] = self.evaluate_node(value, env)
         return name
@@ -140,6 +206,11 @@ class Evaluator:
 
     def defun(self, name, params, body, env):
         env.functions.data[name.value] = Function(self, params, body, env)
+        return name
+
+
+    def defmacro(self, name, params, body, env):
+        env.macros.data[name.value] = Macro(self, params, body, env)
         return name
 
 
@@ -188,7 +259,13 @@ class FunctionScope:
 
     def __init__(self):
         self.data = {}
-        
+
+
+class MacroScope:
+
+    def __init__(self):
+        self.data = {}
+
 
 class BuiltInFunctions(FunctionScope):
 
@@ -214,7 +291,13 @@ class BuiltInFunctions(FunctionScope):
             "eq": lambda x, y: Boolean(x.value == y.value),
             "nth": self.nth,
             "exit": lambda: exit(),
-            "file-read-lines": self.file_read_lines
+            "random": lambda: Float(random.random()),
+            "round": lambda x: Integer(round(x.value)),
+            "file-read-lines": self.file_read_lines,
+            "list": lambda *args: list(args),
+            "cons": self.cons,
+            "car": lambda items: items[0] if items else None,
+            "cdr": lambda items: items[1:] if items else [],
         }
 
 
@@ -232,6 +315,9 @@ class BuiltInFunctions(FunctionScope):
 
         return None
 
+    def cons(self, item, items):
+        return [item] + list(items)
+
     def file_read_lines(self, path):
         path = path.value
         # remove the surrounding quotes
@@ -242,9 +328,10 @@ class BuiltInFunctions(FunctionScope):
 
 class Env:
 
-    def __init__(self, variables, functions, parent):
+    def __init__(self, variables, functions, macros, parent):
         self.variables = variables
         self.functions = functions
+        self.macros = macros
         self.parent = parent
 
     def symbol_value(self, symbol):
@@ -263,28 +350,85 @@ class Env:
         else:
             return None
 
+    def macro(self, symbol):
+        if symbol.value in self.macros.data:
+            return self.macros.data[symbol.value]
+        elif self.parent:
+            return self.parent.macro(symbol)
+        else:
+            return None
+
+
+class ParamSpec:
+    """Parses a lambda-list that may contain &rest, binding fixed params
+    positionally and the remainder (as a Python list) to the rest param."""
+
+    def __init__(self, params):
+        self.fixed = []
+        self.rest_name = None
+
+        i = 0
+        while i < len(params):
+            p = params[i]
+            if p.value == "&rest":
+                self.rest_name = params[i + 1].value
+                i += 2
+            else:
+                self.fixed.append(p.value)
+                i += 1
+
+    def bind(self, args):
+        bound = dict(zip(self.fixed, args))
+        if self.rest_name is not None:
+            bound[self.rest_name] = list(args[len(self.fixed):])
+        return bound
+
 
 class Function:
 
     def __init__(self, evaluator, params, body, env):
         self.evaluator = evaluator
-        self.params = params
+        self.param_spec = ParamSpec(params)
         self.body = body
         self.env = env
 
     def __call__(self, *args):
         variables = Variables()
-        params = [param.value for param in self.params]
-        variables.data.update(zip(params, args))
+        variables.data.update(self.param_spec.bind(list(args)))
 
-        local_env = Env(variables, FunctionScope(), parent=self.env)
+        local_env = Env(variables, FunctionScope(), MacroScope(), parent=self.env)
         result = None
 
         for expression in self.body:
             result = self.evaluator.evaluate_node(expression, local_env)
 
         return result
-    
+
+
+class Macro:
+    """Like Function, but receives raw (unevaluated) argument nodes and
+    returns an expansion tree instead of a final value. &rest in the macro's
+    param list collects the remaining raw argument nodes as a Python list,
+    which is what `,@body` splices."""
+
+    def __init__(self, evaluator, params, body, env):
+        self.evaluator = evaluator
+        self.param_spec = ParamSpec(params)
+        self.body = body
+        self.env = env
+
+    def __call__(self, *raw_args):
+        variables = Variables()
+        variables.data.update(self.param_spec.bind(list(raw_args)))
+
+        local_env = Env(variables, FunctionScope(), MacroScope(), parent=self.env)
+        result = None
+
+        for expression in self.body:
+            result = self.evaluator.evaluate_node(expression, local_env)
+
+        return result
+
 
 class UndefinedFunctionException(Exception):
     """Raised when trying to access an undefined function"""

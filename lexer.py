@@ -4,22 +4,64 @@ class Lexer:
         tokens = []
         collector = ""
         in_string = False
+        i = 0
+        n = len(string)
 
-        for c in string:
-            if (c in "()" or c.isspace()) and not in_string:
+        while i < n:
+            c = string[i]
+
+            if in_string:
+                collector += c
+                if c == "\"":
+                    in_string = False
+                i += 1
+                continue
+
+            if c == "\"":
+                collector += c
+                in_string = True
+                i += 1
+                continue
+
+            if c in "()" or c.isspace():
                 if collector != "":
                     tokens.append(collector)
                     collector = ""
-
                 if not c.isspace():
                     tokens.append(c)
+                i += 1
+                continue
 
-            elif c == "\"":
-                collector += c
-                in_string = not in_string
+            if c == "`":
+                if collector != "":
+                    tokens.append(collector)
+                    collector = ""
+                tokens.append("`")
+                i += 1
+                continue
 
-            else:
-                collector += c
+            if c == "'":
+                if collector != "":
+                    tokens.append(collector)
+                    collector = ""
+                tokens.append("'")
+                i += 1
+                continue
+
+            if c == ",":
+                if collector != "":
+                    tokens.append(collector)
+                    collector = ""
+                if i + 1 < n and string[i + 1] == "@":
+                    tokens.append(",@")
+                    i += 2
+                else:
+                    tokens.append(",")
+                    i += 1
+                continue
+
+            collector += c
+            i += 1
 
         if collector != "":
             tokens.append(collector)
