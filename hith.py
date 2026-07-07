@@ -28,8 +28,10 @@ def start_repl():
                 with contextlib.redirect_stdout(open(os.devnull, 'w')):
                     result = evaluate(exp)
 
-                value = None if result == None else result.value
-                print(value)
+                if isinstance(result, list):
+                    print([item.value for item in result])
+                else:
+                    print(result.value)
         except Exception as e:
             print(e)
 
