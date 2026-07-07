@@ -89,6 +89,12 @@ class TestLogicalOperators(unittest.TestCase):
         self.evaluate("(defvar y 10)")
         self.assertEqual(self.evaluate("(eq (< x y) (> y x))"), BooleanTrue())
         self.assertEqual(self.evaluate("(eq (<= x y) (>= x y))"), Nil())
+
+    def test_not(self):
+        self.assertEqual(self.evaluate("(not nil)"), BooleanTrue())
+        self.assertEqual(self.evaluate("(not t)"), Nil())
+        self.assertEqual(self.evaluate("(not (> 2 1))"), Nil())
+        self.assertEqual(self.evaluate("(not (> 1 2))"), BooleanTrue())
         
 if __name__ == "__main__":
     unittest.main()

@@ -47,3 +47,6 @@
         `(if ,(car clause)
              ,(car (cdr clause))
              (cond ,@rest)))))
+
+(defun not (condition)
+  (if condition nil t))
