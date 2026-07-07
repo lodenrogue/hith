@@ -38,6 +38,9 @@ class Evaluator:
 
 
     def evaluate_node(self, node, env):
+        if self.is_nil(node):
+            return node
+
         if self.is_atom(node):
             if self.is_symbol(node):
                 return env.symbol_value(node)
@@ -131,6 +134,10 @@ class Evaluator:
         ]
 
 
+    def is_nil(self, node):
+        return isinstance(node, Nil)
+
+
     def is_atom(self, node):
         return self.global_env.functions.data["atom"](node)
 
@@ -210,13 +217,18 @@ class Evaluator:
 
     def doif(self, cond, dothen, doelse, env):
         cond_value = self.evaluate_node(cond, env).value
-        
-        if cond_value is not False and cond_value != "False":
+
+        if not self.is_falsey(cond_value):
             return self.evaluate_node(dothen, env)
         else:
             if doelse:
                 return self.evaluate_node(doelse, env)
-            return Nil()
+            else:
+                return Nil()
+
+
+    def is_falsey(self, value):
+        return value is False or value == "False" or value == "nil"
 
 
     def defun(self, name, params, body, env):

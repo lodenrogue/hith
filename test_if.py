@@ -31,6 +31,9 @@ class TestIf(unittest.TestCase):
     def test_no_else(self):
         self.assertEqual(self.evaluate("(if False 1)"), Nil())
 
+    def test_nil_cond(self):
+        self.assertEqual(self.evaluate("(if nil 1 2)"), Integer(2))
+
 
 if __name__ == "__main__":
     unittest.main()
