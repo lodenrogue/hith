@@ -212,6 +212,100 @@ class TestLoops(unittest.TestCase):
                       (setq total (+ total i)))"""
         self.evaluate(script)
         self.assertEqual(self.evaluate("total"), Float(3.0))
+
+    def test_foreach_basic_accumulation(self):
+        script = """(defvar total 0)
+                    (foreach item (list 1 2 3 4 5)
+                      (setq total (+ total item)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("total"), Integer(15))
+
+    def test_foreach_counts_number_of_iterations(self):
+        script = """(defvar count 0)
+                    (foreach item (list 1 2 3 4 5)
+                      (setq count (+ count 1)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("count"), Integer(5))
+
+    def test_foreach_empty_collection_does_not_run_body(self):
+        script = """(defvar hits 0)
+                    (foreach item (list)
+                      (setq hits (+ hits 1)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("hits"), Integer(0))
+
+    def test_foreach_single_element_collection(self):
+        script = """(defvar total 0)
+                    (foreach item (list 42)
+                      (setq total (+ total item)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("total"), Integer(42))
+
+    def test_foreach_preserves_order(self):
+        script = """(defvar last_seen 0)
+                    (foreach item (list 1 2 3)
+                      (setq last_seen item))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("last_seen"), Integer(3))
+
+    def test_foreach_multiple_body_expressions(self):
+        script = """(defvar total 0)
+                    (defvar count 0)
+                    (foreach item (list 10 20 30)
+                      (setq total (+ total item))
+                      (setq count (+ count 1)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("total"), Integer(60))
+        self.assertEqual(self.evaluate("count"), Integer(3))
+
+    def test_foreach_nested(self):
+        script = """(defvar total 0)
+                    (foreach x (list 1 2 3)
+                      (foreach y (list 1 2 3)
+                        (setq total (+ total 1))))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("total"), Integer(9))
+
+    def test_foreach_body_references_outer_variable(self):
+        script = """(defvar multiplier 10)
+                    (defvar total 0)
+                    (foreach item (list 1 2 3)
+                      (setq total (+ total (* item multiplier))))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("total"), Integer(60))
+
+    def test_foreach_collection_from_variable(self):
+        script = """(defvar nums (list 5 10 15))
+                    (defvar total 0)
+                    (foreach item nums
+                      (setq total (+ total item)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("total"), Integer(30))
+
+    def test_foreach_float_elements(self):
+        script = """(defvar total 0)
+                    (foreach item (list 1.5 2.5 3.0)
+                      (setq total (+ total item)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("total"), Float(7.0))
+
+    def test_foreach_does_not_mutate_original_collection(self):
+        script = """(defvar nums (list 1 2 3))
+                    (foreach item nums
+                      (setq item (* item 100)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("nums"), [Integer(1), Integer(2), Integer(3)])
         
 
 if __name__ == "__main__":

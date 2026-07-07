@@ -72,8 +72,11 @@ class Evaluator:
         if head == "backquote":
             return self.backquote(tail[0], env)
 
-        if head == "defvar" or head == "setq":
+        if head == "defvar":
             return self.defvar(name=tail[0], value=tail[1], env=env)
+
+        if head == "setq":
+            return self.setq(name=tail[0], value=tail[1], env=env)
 
         if head == "symbol-value":
             return self.symbol_value(*tail, env)
@@ -89,6 +92,9 @@ class Evaluator:
 
         if head == "defmacro":
             return self.defmacro(name=tail[0], params=tail[1], body=tail[2:], env=env)
+
+        if head == "format":
+            return self.doformat(body=tail, env=env)
 
         if head == "message":
             return self.message(body=tail, env=env)
@@ -117,6 +123,7 @@ class Evaluator:
             "if",
             "defun",
             "defmacro",
+            "format",
             "message",
             "length",
             "progn",
@@ -188,6 +195,14 @@ class Evaluator:
         env.variables.data[name.value] = self.evaluate_node(value, env)
         return name
 
+    def setq(self, name, value, env):
+        val = self.evaluate_node(value, env)
+
+        if not env.set_symbol(name.value, val):
+            env.variables.data[name.value] = val
+
+        return name
+
 
     def symbol_value(self, tail, env):
         return env.symbol_value(self.evaluate_node(tail, env))
@@ -213,8 +228,7 @@ class Evaluator:
         env.macros.data[name.value] = Macro(self, params, body, env)
         return name
 
-
-    def message(self, body, env):
+    def doformat(self, body, env):
         first = body[0]
         if isinstance(first, String):
             string = first
@@ -222,25 +236,23 @@ class Evaluator:
             string = self.evaluate_node(first, env)
 
         if len(body) == 1:
-            print(self.strip_quotes(string.value))
             return string
 
         formatted = string.value
         for arg in body[1:]:
             value = self.evaluate_node(arg, env).value
             if isinstance(value, str):
-                value = self.strip_quotes(value)
+                value = strip_quotes(value)
             formatted = formatted.replace("%s", str(value), 1)
 
         result = String(formatted)
-        print(self.strip_quotes(result.value))
         return result
 
 
-    def strip_quotes(self, value):
-        if isinstance(value, str) and len(value) >= 2 and value.startswith("\"") and value.endswith("\""):
-            return value[1:-1]
-        return value
+    def message(self, body, env):
+        result = self.doformat(body, env)
+        print(strip_quotes(result.value))
+        return result
 
 
     def length(self, *args, env):
@@ -298,6 +310,7 @@ class BuiltInFunctions(FunctionScope):
 
     def __create_init_values(self):
         return {
+            "make-symbol": lambda name: Symbol(strip_quotes(name.value)),
             "atom": lambda e: isinstance(e, Atom),
             "intp": lambda e: isinstance(e, Integer),
             "floatp": lambda e: isinstance(e, Float),
@@ -356,6 +369,17 @@ class Env:
         self.functions = functions
         self.macros = macros
         self.parent = parent
+
+    def set_symbol(self, name, value):
+        if name in self.variables.data:
+            self.variables.data[name] = value
+            return True
+
+        elif self.parent:
+            return self.parent.set_symbol(name, value)
+
+        else:
+            return False
 
     def symbol_value(self, symbol):
         if symbol.value in self.variables.data:
@@ -456,3 +480,10 @@ class Macro:
 class UndefinedFunctionException(Exception):
     """Raised when trying to access an undefined function"""
     pass
+
+
+def strip_quotes(value):
+    if isinstance(value, str) and len(value) >= 2 and value.startswith("\"") and value.endswith("\""):
+        return value[1:-1]
+    return value
+
