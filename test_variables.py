@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import Symbol, Integer, String
+from htypes import Nil, Symbol, Integer, String
 
 
 class TestVariables(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestVariables(unittest.TestCase):
         self.evaluate = Evaluator().evaluate
 
     def test_undefined_variable(self):
-        self.assertEqual(self.evaluate("(symbol-value (quote x))"), None)
+        self.assertEqual(self.evaluate("(symbol-value 'x)"), Nil())
 
     def test_defvar_variable_value(self):
         value = 20

@@ -1,7 +1,5 @@
-# parser.py
-
 import json
-from htypes import Atom, Boolean, Integer, Float, String, Symbol
+from htypes import Nil, Atom, Boolean, Integer, Float, String, Symbol
 
 
 class Parser:
@@ -69,6 +67,9 @@ class Parser:
             try:
                 return Float(float(token))
             except ValueError:
+                if token == "nil":
+                    return Nil()
+
                 if token == "True":
                     return Boolean(True)
 

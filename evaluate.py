@@ -2,7 +2,7 @@ import os
 import random
 from lexer import Lexer
 from parser import Parser
-from htypes import Atom, Boolean, Integer, Float, String, Symbol
+from htypes import Nil, Atom, Boolean, Integer, Float, String, Symbol
 
 
 LIBS_DIR = os.path.dirname(os.path.abspath(__file__)) + "/libs"
@@ -30,7 +30,7 @@ class Evaluator:
     def evaluate(self, exp):
         ast = self.parser.build_ast(self.lexer.tokenize(exp))
 
-        result = None
+        result = Nil()
         for node in ast:
             result = self.evaluate_node(node, self.global_env)
 
@@ -216,7 +216,7 @@ class Evaluator:
         else:
             if doelse:
                 return self.evaluate_node(doelse, env)
-            return None
+            return Nil()
 
 
     def defun(self, name, params, body, env):
@@ -265,7 +265,7 @@ class Evaluator:
 
 
     def progn(self, *args, env):
-        result = None
+        result = Nil()
 
         for arg in args:
             result = self.evaluate_node(arg, env)
@@ -332,7 +332,7 @@ class BuiltInFunctions(FunctionScope):
             "file-read-lines": self.file_read_lines,
             "list": lambda *args: list(args),
             "cons": self.cons,
-            "car": lambda items: items[0] if items else None,
+            "car": lambda items: items[0] if items else Nil(),
             "cdr": lambda items: items[1:] if items else [],
         }
 
@@ -349,7 +349,7 @@ class BuiltInFunctions(FunctionScope):
         if len(items) > index:
             return items[index]
 
-        return None
+        return Nil()
 
     def cons(self, item, items):
         return [item] + list(items)
@@ -387,7 +387,7 @@ class Env:
         elif self.parent:
             return self.parent.symbol_value(symbol)
         else:
-            return None
+            return Nil()
 
     def function(self, symbol):
         if symbol.value in self.functions.data:
@@ -444,7 +444,7 @@ class Function:
         variables.data.update(self.param_spec.bind(list(args)))
 
         local_env = Env(variables, FunctionScope(), MacroScope(), parent=self.env)
-        result = None
+        result = Nil()
 
         for expression in self.body:
             result = self.evaluator.evaluate_node(expression, local_env)
@@ -469,7 +469,7 @@ class Macro:
         variables.data.update(self.param_spec.bind(list(raw_args)))
 
         local_env = Env(variables, FunctionScope(), MacroScope(), parent=self.env)
-        result = None
+        result = Nil()
 
         for expression in self.body:
             result = self.evaluator.evaluate_node(expression, local_env)

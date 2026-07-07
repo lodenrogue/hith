@@ -1,3 +1,11 @@
+class Nil:
+
+    def __init__(self):
+        self.value = "nil"
+
+    def __eq__(self, other):
+        return type(self) == type(other)
+
 class Atom:
 
     def __init__(self, value):
