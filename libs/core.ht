@@ -1,3 +1,10 @@
+(defmacro for (var initval condition update &rest body)
+  `(progn
+     (setq ,var ,initval)
+     (while ,condition
+       ,@body
+       ,update)))
+
 (defmacro range (var lower upper &rest body)
   `(progn
      (setq ,var ,lower)
