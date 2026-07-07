@@ -5,14 +5,14 @@ A Lisp interpreter, written from scratch in Python. Hith has s-expression syntax
 Hith supports:
 
 - Arithmetic and comparison operators
-- `t` / `nil` as true and false, with any unbound symbol (like `False`) acting as falsy
+- `t` / `nil` as true and false
 - Variables (`defvar`, `setq`) and symbol lookup
 - Integers and floats (mixing the two promotes to float)
 - Strings
 - Lists, and list operations (`list`, `cons`, `car`, `cdr`, `nth`, `length`)
 - Conditionals (`if`, `cond`)
 - Loops (`while`, `for`, `range`, `foreach`)
-- User-defined functions (`defun`) with multi-expression bodies and `&rest` parameters
+- User-defined functions (`defun`) with multi-expression bodies
 - Lexical scoping and closures
 - Macros (`defmacro`) with backquote/unquote/unquote-splice
 - Type predicates (`atom`, `intp`, `floatp`, `stringp`, `symbolp`)
@@ -58,7 +58,7 @@ It sounds like a snake hissing with a lisp. :)
 
 ## Quick Example
 
-```
+```lisp
 >>> (defvar x 10)
 x
 
@@ -94,7 +94,7 @@ Python 3. No third-party dependencies — only the standard library.
 
 Start the REPL:
 
-```
+```bash
 python hith.py
 ```
 
@@ -102,23 +102,23 @@ Type expressions at the `>>> ` prompt. Type `exit` to quit.
 
 ### Run a Hith Script
 
-```
+```bash
 python hith.py script
 ```
 
 Any extra command-line arguments are passed through and available inside the script as `command-line-args` — a list whose first element is the script's own path, followed by whatever else you passed:
 
-```
+```bash
 python hith.py greet friend
 ```
 
-```
+```bash
 (message (nth 1 command-line-args))
 ```
 
 Output:
 
-```
+```bash
 friend
 ```
 
@@ -135,7 +135,7 @@ print(result.value)
 
 Output:
 
-```
+```bash
 3
 ```
 
@@ -148,7 +148,7 @@ print([item.value for item in result])
 
 Output:
 
-```
+```bash
 [1, 2, 3]
 ```
 
@@ -166,7 +166,7 @@ Hith has five kinds of value:
 | Symbol | `x`, `my-var`, `square` | Names of variables, functions, or quoted data |
 | List | `(1 2 3)`, `'(a b c)` | A parenthesized, space-separated sequence |
 
-```
+```lisp
 >>> 42
 42
 
@@ -177,12 +177,8 @@ Hith has five kinds of value:
 "Hello, world!"
 ```
 
-There's no separate boolean type. Truth is `t`; false and "nothing here" are both `nil`. Every value other than `nil` is truthy in a conditional — numbers, strings, and non-empty lists included. Because a symbol that was never given a value simply looks up as `nil`, the word `False` reads nicely as "false" even though it isn't a reserved keyword — it's just an undefined symbol:
-
-```
->>> (if False 1 2)
-2
-
+There's no separate boolean type. Truth is `t`; Every value other than `nil` is truthy in a conditional — numbers, strings, and non-empty lists included:
+```lisp
 >>> (if nil 1 2)
 2
 
@@ -194,7 +190,7 @@ There's no separate boolean type. Truth is `t`; false and "nothing here" are bot
 
 `+`, `-`, `*`, and `/` each take exactly two arguments — nest calls to combine more than two values:
 
-```
+```lisp
 >>> (+ 1 2)
 3
 
@@ -213,7 +209,7 @@ There's no separate boolean type. Truth is `t`; false and "nothing here" are bot
 
 ### Variables
 
-```
+```lisp
 >>> (defvar x 10)
 x
 
@@ -239,14 +235,14 @@ They also differ in an important way: `defvar` always creates (or overwrites) a 
 
 ### Printing
 
-```
+```lisp
 >>> (message "hello")
 "hello"
 ```
 
 `message` formats a string, prints it (without surrounding quotes) to standard out, and returns the formatted string. `format` does the same formatting but only returns the string — it never prints:
 
-```
+```lisp
 >>> (format "test %s test" "value")
 "test value test"
 
@@ -263,7 +259,7 @@ Each `%s` in the template is replaced, left to right, by the corresponding argum
 
 `>`, `<`, `>=`, `<=`, and `eq` each take exactly two arguments and return `t` or `nil`:
 
-```
+```lisp
 >>> (> 2 1)
 t
 
@@ -285,7 +281,7 @@ t
 
 ### Conditionals
 
-```
+```lisp
 >>> (if t 1 2)
 1
 
@@ -303,7 +299,7 @@ An `if` with no else-branch returns `nil` when the test is false.
 
 For more than two branches, use `cond`. Each clause is a test paired with a result; the first clause whose test is truthy "wins," and a final clause of `t` acts as the default:
 
-```
+```lisp
 (defun check-value (x)
   (cond
     ((< x 0) "negative")
@@ -312,7 +308,7 @@ For more than two branches, use `cond`. Each clause is a test paired with a resu
     (t "something else")))
 ```
 
-```
+```lisp
 >>> (check-value -1)
 "negative"
 
@@ -329,7 +325,7 @@ Hith has four looping constructs. All of them run their body — which may be mo
 
 `while` re-checks its condition before every iteration:
 
-```
+```lisp
 (defvar count 0)
 (while (< count 5)
   (setq count (+ count 1)))
@@ -338,7 +334,7 @@ Hith has four looping constructs. All of them run their body — which may be mo
 
 `for` is a classic init/condition/update loop:
 
-```
+```lisp
 (defvar total 0)
 (for i 0 (< i 10) (setq i (+ i 1))
   (setq total (+ total i)))
@@ -347,7 +343,7 @@ Hith has four looping constructs. All of them run their body — which may be mo
 
 `range` is a shorthand for counting from a lower bound up to (but not including) an upper bound, stepping by 1 automatically:
 
-```
+```lisp
 (defvar total 0)
 (range i 0 10
   (setq total (+ total i)))
@@ -356,7 +352,7 @@ Also `45` — with `i` left holding `10`.
 
 `foreach` walks the elements of a list:
 
-```
+```lisp
 (defvar total 0)
 (foreach item (list 1 2 3 4 5)
   (setq total (+ total item)))
@@ -369,7 +365,7 @@ All four loops can be nested, and all of them leave their loop variable (and any
 
 A list is written as parenthesized, space-separated items. Prefixing an expression with `'` is shorthand for wrapping it in `quote` — it returns the expression as literal data instead of evaluating it as a function call:
 
-```
+```lisp
 >>> (defvar nums (list 1 2 3))
 nums
 
@@ -386,7 +382,7 @@ nums
 1
 ```
 
-```
+```lisp
 >>> (defvar letters '(a b c))
 letters
 
@@ -399,7 +395,7 @@ hello
 
 `cons` prepends an item to a list, and `cdr` returns everything after the first item:
 
-```
+```lisp
 >>> (defvar more (cons 0 nums))
 more
 
@@ -412,7 +408,7 @@ more
 
 `length` also works on strings:
 
-```
+```lisp
 >>> (length "hello")
 5
 ```
@@ -423,37 +419,37 @@ more
 
 Functions are defined with `defun`. A function body can contain several expressions, evaluated in order, with the last one's value returned:
 
-```
+```lisp
 (defun max2 (a b)
   (if (> a b) a b))
 ```
 
-```
+```lisp
 >>> (max2 10 4)
 10
 ```
 
-```
+```lisp
 (defun multi-step (x y)
   (setq total (+ x y))
   (setq total (* total y))
   (+ total y))
 ```
 
-```
+```lisp
 >>> (multi-step 2 3)
 18
 ```
 
 Functions run in their own lexical environment: parameters are local to the call, while outer variables and functions remain reachable. Defining a function inside another function creates a closure — the inner function can see the outer function's variables, but the inner function itself only exists for the duration of that call and isn't visible globally:
 
-```
+```lisp
 (defun outer-func (x)
   (defun inner-func (x) (+ x 1))
   (+ x (inner-func 10)))
 ```
 
-```
+```lisp
 >>> (outer-func 5)
 16
 
@@ -463,11 +459,11 @@ Function with name inner-func is undefined
 
 A parameter list can end with `&rest name` to collect any remaining arguments into a list:
 
-```
+```lisp
 (defun my-list (&rest items) items)
 ```
 
-```
+```lisp
 >>> (defvar result (my-list 1 2 3))
 result
 
@@ -477,14 +473,14 @@ result
 
 You can also write recursive functions in the usual way:
 
-```
+```lisp
 (defun factorial (n)
   (if (<= n 1)
       1
       (* n (factorial (- n 1)))))
 ```
 
-```
+```lisp
 >>> (factorial 5)
 120
 ```
@@ -495,23 +491,23 @@ Macros are defined with `defmacro`. Unlike a function, a macro receives its argu
 
 A minimal example:
 
-```
+```lisp
 (defmacro double (x) `(* 2 ,x))
 ```
 
-```
+```lisp
 >>> (double 5)
 10
 ```
 
 A more complete one, combining `&rest` with `,@` to splice a whole macro body into a `progn`:
 
-```
+```lisp
 (defmacro my-when (test &rest body)
   `(if ,test (progn ,@body) False))
 ```
 
-```
+```lisp
 >>> (defvar x 10)
 x
 
@@ -527,14 +523,14 @@ x
 
 ### Symbols
 
-```
+```lisp
 >>> (make-symbol "x")
 x
 ```
 
 `make-symbol` builds a symbol with exactly the name you give it. `gensym` instead manufactures a symbol guaranteed to be fresh — handy inside macros, to avoid accidentally colliding with a name already in use:
 
-```
+```lisp
 >>> (gensym)
 #:G1
 
@@ -552,7 +548,7 @@ x
 | `stringp` | strings |
 | `symbolp` | symbols |
 
-```
+```lisp
 >>> (intp 10)
 t
 
@@ -574,7 +570,7 @@ t
 
 ### Randomness
 
-```
+```lisp
 >>> (floatp (random))
 t
 
@@ -584,7 +580,7 @@ t
 
 `random` returns a float in `[0, 1)`. `randrange` returns a random integer for a given range, the same way Python's `random.randrange` does. `choice` picks a uniformly random element from a list, or `nil` for an empty one:
 
-```
+```lisp
 >>> (defvar options '(a b c))
 options
 
@@ -597,7 +593,7 @@ nil
 
 ### Files
 
-```
+```lisp
 >>> (defvar lines (file-read-lines "notes.txt"))
 lines
 
@@ -611,7 +607,7 @@ lines
 
 `progn` evaluates a series of expressions in order and returns the last one's value — useful anywhere the grammar expects a single expression but you need several steps:
 
-```
+```lisp
 >>> (progn (setq a 10) (setq b 20) (+ a b))
 30
 
@@ -621,7 +617,7 @@ nil
 
 ### Miscellaneous
 
-```
+```lisp
 >>> (round 4.6)
 5
 ```
@@ -706,19 +702,19 @@ Not everything lives in the Python evaluator. Features like `cond`, `while`, `fo
 
 Run all tests:
 
-```
+```lisp
 python -m unittest discover
 ```
 
 or:
 
-```
+```lisp
 make test
 ```
 
 Or run an individual test file:
 
-```
+```lisp
 python test_lexer.py
 ```
 
