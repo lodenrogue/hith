@@ -337,7 +337,7 @@ class BuiltInFunctions(FunctionScope):
 
     def string_match(self, regex, string):
         pattern = re.compile(strip_quotes(regex.value))
-        m = pattern.match(strip_quotes(string.value))
+        m = pattern.search(strip_quotes(string.value))
         if m:
             return Integer(m.start())
         else:
