@@ -86,7 +86,7 @@ square
 
 ## Requirements
 
-Python 3. No third-party dependencies — only the standard library.
+Python 3. No third-party dependencies, only the standard library.
 
 ## Usage
 
@@ -106,7 +106,9 @@ Type expressions at the `>>> ` prompt. Type `exit` to quit.
 python hith.py script
 ```
 
-Any extra command-line arguments are passed through and available inside the script as `command-line-args` — a list whose first element is the script's own path, followed by whatever else you passed:
+Any extra command-line arguments are passed through and available
+inside the script as `command-line-args. A list whose first element is
+the script's own path, followed by whatever else you passed:
 
 ```bash
 python hith.py greet friend
@@ -139,7 +141,9 @@ Output:
 3
 ```
 
-Every value `evaluate` returns wraps its underlying Python value in `.value` — except lists, which come back as plain Python lists of wrapped values:
+Every value `evaluate` returns wraps its underlying Python value in
+`.value` except lists, which come back as plain Python lists of
+wrapped values:
 
 ```python
 result = evaluator.evaluate("(list 1 2 3)")
@@ -177,7 +181,10 @@ Hith has five kinds of value:
 "Hello, world!"
 ```
 
-There's no separate boolean type. Truth is `t`; Every value other than `nil` is truthy in a conditional — numbers, strings, and non-empty lists included:
+There's no separate boolean type. Truth is `t`; Every value other than
+`nil` is truthy in a conditional including numbers, strings, and
+non-empty lists:
+
 ```lisp
 >>> (if nil 1 2)
 2
@@ -188,7 +195,8 @@ There's no separate boolean type. Truth is `t`; Every value other than `nil` is 
 
 ### Arithmetic
 
-`+`, `-`, `*`, and `/` each take exactly two arguments — nest calls to combine more than two values:
+`+`, `-`, `*`, and `/` each take exactly two arguments. Nest calls to
+combine more than two values:
 
 ```lisp
 >>> (+ 1 2)
@@ -229,9 +237,20 @@ z
 nil
 ```
 
-`defvar` and `setq` both return the variable's *name* (as a symbol), not its value — keep that in mind if you're chaining expressions together.
+`defvar` and `setq` both return the variable's *name* (as a symbol),
+not its value. Leep that in mind if you're chaining expressions
+together.
 
-They also differ in an important way: `defvar` always creates (or overwrites) a variable in the *current* scope, even if a variable with the same name already exists further out. `setq` instead looks for an existing binding — starting locally and searching outward — and updates that binding in place; only if no binding exists anywhere does it create a new local one. In practice: use `defvar` to introduce a variable, and `setq` to mutate one you expect already exists, however far out it lives. (This is exactly how the loop variable in `for`/`range`/`while`, below, ends up visible after the loop finishes.)
+They also differ in an important way: `defvar` always creates (or
+overwrites) a variable in the *current* scope, even if a variable with
+the same name already exists further out. `setq` instead looks for an
+existing binding, starting locally and searching outward, and updates
+that binding in place; only if no binding exists anywhere does it
+create a new local one. In practice: use `defvar` to introduce a
+variable, and `setq` to mutate one you expect already exists, however
+far out it lives. (This is exactly how the loop variable in
+`for`/`range`/`while`, below, ends up visible after the loop
+finishes.)
 
 ### Printing
 
@@ -240,7 +259,9 @@ They also differ in an important way: `defvar` always creates (or overwrites) a 
 "hello"
 ```
 
-`message` formats a string, prints it (without surrounding quotes) to standard out, and returns the formatted string. `format` does the same formatting but only returns the string — it never prints:
+`message` formats a string, prints it (without surrounding quotes) to
+standard out, and returns the formatted string. `format` does the same
+formatting but only returns the string:
 
 ```lisp
 >>> (format "test %s test" "value")
@@ -285,13 +306,13 @@ t
 >>> (if t 1 2)
 1
 
->>> (if False 1 2)
+>>> (if nil 1 2)
 2
 
 >>> (if (< 1 2) (+ 1 2) (+ 2 3))
 3
 
->>> (if False 1)
+>>> (if nil 1)
 nil
 ```
 
@@ -321,7 +342,7 @@ For more than two branches, use `cond`. Each clause is a test paired with a resu
 
 ### Loops
 
-Hith has four looping constructs. All of them run their body — which may be more than one expression — once per iteration, in order.
+Hith has four looping constructs. All of them run their body, which may be more than one expression, once per iteration, in order.
 
 `while` re-checks its condition before every iteration:
 
@@ -348,7 +369,8 @@ Hith has four looping constructs. All of them run their body — which may be mo
 (range i 0 10
   (setq total (+ total i)))
 ```
-Also `45` — with `i` left holding `10`.
+
+Also `45` with `i` left holding `10`.
 
 `foreach` walks the elements of a list:
 
@@ -363,7 +385,10 @@ All four loops can be nested, and all of them leave their loop variable (and any
 
 ### Lists
 
-A list is written as parenthesized, space-separated items. Prefixing an expression with `'` is shorthand for wrapping it in `quote` — it returns the expression as literal data instead of evaluating it as a function call:
+A list is written as parenthesized, space-separated items. Prefixing
+an expression with `'` is shorthand for wrapping it in `quote`. It
+returns the expression as literal data instead of evaluating it as a
+function call:
 
 ```lisp
 >>> (defvar nums (list 1 2 3))
@@ -441,7 +466,12 @@ Functions are defined with `defun`. A function body can contain several expressi
 18
 ```
 
-Functions run in their own lexical environment: parameters are local to the call, while outer variables and functions remain reachable. Defining a function inside another function creates a closure — the inner function can see the outer function's variables, but the inner function itself only exists for the duration of that call and isn't visible globally:
+Functions run in their own lexical environment: parameters are local
+to the call, while outer variables and functions remain
+reachable. Defining a function inside another function creates a
+closure. The inner function can see the outer function's variables,
+but the inner function itself only exists for the duration of that
+call and isn't visible globally:
 
 ```lisp
 (defun outer-func (x)
@@ -504,7 +534,7 @@ A more complete one, combining `&rest` with `,@` to splice a whole macro body in
 
 ```lisp
 (defmacro my-when (test &rest body)
-  `(if ,test (progn ,@body) False))
+  `(if ,test (progn ,@body) nil))
 ```
 
 ```lisp
@@ -528,7 +558,10 @@ x
 x
 ```
 
-`make-symbol` builds a symbol with exactly the name you give it. `gensym` instead manufactures a symbol guaranteed to be fresh — handy inside macros, to avoid accidentally colliding with a name already in use:
+`make-symbol` builds a symbol with exactly the name you give
+it. `gensym` instead manufactures a symbol guaranteed to be
+fresh. This is handy inside macros to avoid accidentally colliding
+with a name already in use:
 
 ```lisp
 >>> (gensym)
@@ -542,7 +575,7 @@ x
 
 | Predicate | True for |
 | --- | --- |
-| `atom` | integers, floats, strings, and symbols — anything that isn't a list |
+| `atom` | integers, floats, strings, and symbols. Anything that isn't a list |
 | `intp` | integers |
 | `floatp` | floats |
 | `stringp` | strings |
@@ -605,7 +638,9 @@ lines
 
 ### Sequencing with progn
 
-`progn` evaluates a series of expressions in order and returns the last one's value — useful anywhere the grammar expects a single expression but you need several steps:
+`progn` evaluates a series of expressions in order and returns the
+last one's value. This is useful anywhere the grammar expects a single
+expression but you need several steps:
 
 ```lisp
 >>> (progn (setq a 10) (setq b 20) (+ a b))
@@ -622,7 +657,8 @@ nil
 5
 ```
 
-`round` rounds to the nearest integer. `exit` — as a call, `(exit)`, or just by typing `exit` at the REPL prompt — ends the program.
+`round` rounds to the nearest integer. `(exit)` or just type `exit` at
+the REPL prompt to exit the program.
 
 ## Quick Reference
 
@@ -721,6 +757,4 @@ python test_lexer.py
 ## Current Limitations
 
 - Limited error handling.
-- No comment syntax — there's currently no way to annotate a Hith source file.
-- Arithmetic and comparison operators are binary only (exactly two arguments); nest calls for chains of more than two values.
-- The REPL prints a result by reading its `.value`, so an expression that evaluates to a bare list (`list`, `cons`, `cdr`, or a quoted list) won't print at the `>>> ` prompt. Assign it to a variable and inspect it with `nth`/`length`, or drive it from Python via `evaluate(...)` directly.
+- No comment syntax.
