@@ -13,7 +13,7 @@ class TestIf(unittest.TestCase):
         self.assertEqual(self.evaluate("(if \"Hello\" 1 2)"), Integer(1))
 
     def test_else(self):
-        self.assertEqual(self.evaluate("(if False 1 2)"), Integer(2))
+        self.assertEqual(self.evaluate("(if nil 1 2)"), Integer(2))
 
     def test_cond(self):
         self.assertEqual(self.evaluate("(if (< 1 2) 1 2)"), Integer(1))
@@ -26,10 +26,10 @@ class TestIf(unittest.TestCase):
         self.assertEqual(self.evaluate("(if t (+ 1 2) (+ 2 3))"), Integer(3))
 
     def test_eval_else(self):
-        self.assertEqual(self.evaluate("(if False (+ 1 2) (+ 2 3))"), Integer(5))
+        self.assertEqual(self.evaluate("(if nil (+ 1 2) (+ 2 3))"), Integer(5))
 
     def test_no_else(self):
-        self.assertEqual(self.evaluate("(if False 1)"), Nil())
+        self.assertEqual(self.evaluate("(if nil 1)"), Nil())
 
     def test_nil_cond(self):
         self.assertEqual(self.evaluate("(if nil 1 2)"), Integer(2))
