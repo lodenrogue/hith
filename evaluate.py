@@ -111,9 +111,6 @@ class Evaluator:
         if head == "progn":
             return self.progn(*tail, env=env)
 
-        if head == "while":
-            return self.dowhile(condition=tail[0], body=tail[1:], env=env)
-
 
     def is_quoted(self, node):
         return isinstance(node, str) and node.startswith("'")
@@ -132,8 +129,7 @@ class Evaluator:
             "format",
             "message",
             "length",
-            "progn",
-            "while"
+            "progn"
         ]
 
 
@@ -282,12 +278,6 @@ class Evaluator:
             result = self.evaluate_node(arg, env)
 
         return result
-
-
-    def dowhile(self, condition, body, env):
-        while self.evaluate_node(condition, env) == BooleanTrue():
-            for expression in body:
-                self.evaluate_node(expression, env)
 
 
 class Variables:

@@ -5,6 +5,18 @@
   (setq gensym-counter (+ gensym-counter 1))
   (make-symbol (format "%s%s" "gensym" num)))
 
+(defmacro while (condition &rest body)
+  (setq cond-fn (gensym))
+  (setq loop-fn (gensym))
+  `(progn
+     (defun ,cond-fn () ,condition)
+     (defun ,loop-fn ()
+       (if (,cond-fn)
+	   (progn
+	     ,@body
+	     (,loop-fn))))
+     (,loop-fn)))
+
 (defmacro foreach (item collection &rest body)
   (setq idx (gensym))
   `(progn
