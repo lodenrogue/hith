@@ -9,7 +9,7 @@ class TestIf(unittest.TestCase):
         self.evaluate = Evaluator().evaluate
 
     def test_then(self):
-        self.assertEqual(self.evaluate("(if True 1 2)"), Integer(1))
+        self.assertEqual(self.evaluate("(if t 1 2)"), Integer(1))
         self.assertEqual(self.evaluate("(if \"Hello\" 1 2)"), Integer(1))
 
     def test_else(self):
@@ -23,7 +23,7 @@ class TestIf(unittest.TestCase):
         self.assertEqual(self.evaluate("(if (> 1 2) 1 2)"), Integer(2))
 
     def test_eval_then(self):
-        self.assertEqual(self.evaluate("(if True (+ 1 2) (+ 2 3))"), Integer(3))
+        self.assertEqual(self.evaluate("(if t (+ 1 2) (+ 2 3))"), Integer(3))
 
     def test_eval_else(self):
         self.assertEqual(self.evaluate("(if False (+ 1 2) (+ 2 3))"), Integer(5))

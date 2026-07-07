@@ -2,7 +2,7 @@ import os
 import random
 from lexer import Lexer
 from parser import Parser
-from htypes import Nil, Atom, Boolean, Integer, Float, String, Symbol
+from htypes import Nil, Atom, BooleanTrue, Integer, Float, String, Symbol
 
 
 LIBS_DIR = os.path.dirname(os.path.abspath(__file__)) + "/libs"
@@ -46,6 +46,9 @@ class Evaluator:
                 return env.symbol_value(node)
             else:
                 return node
+
+        if isinstance(node, list) and len(node) == 0:
+            return Nil()
 
         raw_head, *raw_args = node
         head = self.evaluate_node(raw_head, env) if isinstance(raw_head, list) else raw_head
@@ -216,19 +219,15 @@ class Evaluator:
 
 
     def doif(self, cond, dothen, doelse, env):
-        cond_value = self.evaluate_node(cond, env).value
+        cond_value = self.evaluate_node(cond, env)
 
-        if not self.is_falsey(cond_value):
+        if cond_value != Nil():
             return self.evaluate_node(dothen, env)
         else:
             if doelse:
                 return self.evaluate_node(doelse, env)
             else:
                 return Nil()
-
-
-    def is_falsey(self, value):
-        return value is False or value == "False" or value == "nil"
 
 
     def defun(self, name, params, body, env):
@@ -286,20 +285,15 @@ class Evaluator:
 
 
     def dowhile(self, condition, body, env):
-        while self.evaluate_node(condition, env).value:
+        while self.evaluate_node(condition, env) == BooleanTrue():
             for expression in body:
                 self.evaluate_node(expression, env)
 
 
 class Variables:
+
     def __init__(self):
-        self.data = self.__create_init_values()
-
-
-    def __create_init_values(self):
-        return {
-            "False": False
-        }
+        self.data = {}
 
 
 class FunctionScope:
@@ -332,11 +326,11 @@ class BuiltInFunctions(FunctionScope):
             "-": lambda x, y: self.cast_arithmetic(x, y, x.value - y.value),
             "*": lambda x, y: self.cast_arithmetic(x, y, x.value * y.value),
             "/": lambda x, y: self.cast_arithmetic(x, y, x.value / y.value),
-            ">": lambda x, y: Boolean(x.value > y.value),
-            "<": lambda x, y: Boolean(x.value < y.value),
-            ">=": lambda x, y: Boolean(x.value >= y.value),
-            "<=": lambda x, y: Boolean(x.value <= y.value),
-            "eq": lambda x, y: Boolean(x.value == y.value),
+            ">": lambda x, y: self.cast_boolean((x.value > y.value)),
+            "<": lambda x, y: self.cast_boolean(x.value < y.value),
+            ">=": lambda x, y: self.cast_boolean(x.value >= y.value),
+            "<=": lambda x, y: self.cast_boolean(x.value <= y.value),
+            "eq": lambda x, y: self.cast_boolean(x.value == y.value),
             "nth": self.nth,
             "exit": lambda: exit(),
             "random": lambda: Float(random.random()),
@@ -354,6 +348,13 @@ class BuiltInFunctions(FunctionScope):
             return Float(result)
 
         return Integer(result)
+
+
+    def cast_boolean(self, result):
+        if result == True:
+            return BooleanTrue()
+        else:
+            return Nil()
 
 
     def nth(self, index, items):

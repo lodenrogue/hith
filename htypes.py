@@ -15,10 +15,10 @@ class Atom:
         return type(self) == type(other) and self.value == other.value
 
 
-class Boolean(Atom):
+class BooleanTrue(Atom):
 
-    def __init__(self, value):
-        super().__init__(value)
+    def __init__(self):
+        super().__init__("t")
 
 
 class Integer(Atom):
