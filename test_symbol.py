@@ -15,9 +15,9 @@ class TestSymbol(unittest.TestCase):
 
     def test_gensym(self):
         self.assertTrue(self.evaluate("(symbolp (gensym))"))
-        self.assertEqual(self.evaluate("(gensym)").value, "gensym1")
-        self.assertEqual(self.evaluate("(gensym)").value, "gensym2")
-        self.assertEqual(self.evaluate("(gensym)").value, "gensym3")
+        self.assertEqual(self.evaluate("(gensym)").value, "#:G1")
+        self.assertEqual(self.evaluate("(gensym)").value, "#:G2")
+        self.assertEqual(self.evaluate("(gensym)").value, "#:G3")
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 (defun gensym ()
   (setq num gensym-counter)
   (setq gensym-counter (+ gensym-counter 1))
-  (make-symbol (format "%s%s" "gensym" num)))
+  (make-symbol (format "#:G%s" num)))
 
 (defmacro while (condition &rest body)
   (setq cond-fn (gensym))
