@@ -1,4 +1,5 @@
 import os
+import re
 import random
 from lexer import Lexer
 from parser import Parser
@@ -330,7 +331,17 @@ class BuiltInFunctions(FunctionScope):
             "cons": self.cons,
             "car": lambda items: items[0] if items else Nil(),
             "cdr": lambda items: items[1:] if items else [],
+            "string-match": self.string_match,
         }
+
+
+    def string_match(self, regex, string):
+        pattern = re.compile(strip_quotes(regex.value))
+        m = pattern.match(strip_quotes(string.value))
+        if m:
+            return Integer(m.start())
+        else:
+            return Nil()
 
 
     def cast_arithmetic(self, x, y, result):
