@@ -332,7 +332,19 @@ class BuiltInFunctions(FunctionScope):
             "car": lambda items: items[0] if items else Nil(),
             "cdr": lambda items: items[1:] if items else [],
             "string-match": self.string_match,
+            "string-to-number": self.string_to_number
         }
+
+
+    def string_to_number(self, string):
+        value = strip_quotes(string.value)
+        try:
+            return Integer(int(value))
+        except ValueError:
+            try:
+                return Float(float(value))
+            except ValueError:
+                return Nil()
 
 
     def string_match(self, regex, string):

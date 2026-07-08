@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import String
+from htypes import String, Integer, Float, Nil
 
 
 class TestString(unittest.TestCase):
@@ -23,8 +23,16 @@ class TestString(unittest.TestCase):
 
     def test_split_string_multiple_matches(self):
         self.evaluate("(defvar x \"test test\")")
-        result = self.evaluate("(split-string x \"e\")")
         self.assertEqual(self.evaluate("(split-string x \"e\")"), [String("\"t\""), String("\"st t\""), String("\"st\"")])
+
+    def test_string_to_number_integer(self):
+        self.assertEqual(self.evaluate("(string-to-number \"10\")"), Integer(10))
+
+    def test_string_to_number_float(self):
+        self.assertEqual(self.evaluate("(string-to-number \"10.55\")"), Float(10.55))
+
+    def test_string_to_number_non_number(self):
+        self.assertEqual(self.evaluate("(string-to-number \"test\")"), Nil())
 
 
 if __name__ == "__main__":
