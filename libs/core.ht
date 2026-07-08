@@ -4,16 +4,3 @@
   (setq num gensym-counter)
   (setq gensym-counter (+ gensym-counter 1))
   (make-symbol (format "#:G%s" num)))
-
-(defmacro cond (&rest clauses)
-  (if (eq (length clauses) 0)
-      nil
-      (progn
-        (setq clause (car clauses))
-        (setq rest (cdr clauses))
-        `(if ,(car clause)
-             ,(car (cdr clause))
-             (cond ,@rest)))))
-
-(defun not (condition)
-  (if condition nil t))

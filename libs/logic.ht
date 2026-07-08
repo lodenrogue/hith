@@ -1,0 +1,16 @@
+(defmacro cond (&rest clauses)
+  (if (eq (length clauses) 0)
+      nil
+      (progn
+        (setq clause (car clauses))
+        (setq rest (cdr clauses))
+        `(if ,(car clause)
+             ,(car (cdr clause))
+             (cond ,@rest)))))
+
+(defun not (condition)
+  (if condition nil t))
+
+(defmacro unless (condition &rest body)
+  `(if (not ,condition)
+       ,@body))

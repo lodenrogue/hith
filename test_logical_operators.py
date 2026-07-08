@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import BooleanTrue, Nil
+from htypes import BooleanTrue, Nil, Integer
 
 
 class TestLogicalOperators(unittest.TestCase):
@@ -95,6 +95,23 @@ class TestLogicalOperators(unittest.TestCase):
         self.assertEqual(self.evaluate("(not t)"), Nil())
         self.assertEqual(self.evaluate("(not (> 2 1))"), Nil())
         self.assertEqual(self.evaluate("(not (> 1 2))"), BooleanTrue())
+
+    def test_unless(self):
+        self.assertEqual(self.evaluate("(unless t 1)"), Nil())
+        self.assertEqual(self.evaluate("(unless nil 1)"), Integer(1))
+        self.assertEqual(self.evaluate("(unless (> 2 1) 1)"), Nil())
+        self.assertEqual(self.evaluate("(unless (> 1 2) 1)"), Integer(1))
+        self.assertEqual(self.evaluate("(unless (> 1 2) (+ 3 2))"), Integer(5))
+
+        script = """(unless (> 1 2)
+                      (progn
+                        (defvar x 10)
+                        (setq x (+ x 2))
+                        (setq x (+ x 2))
+                        x))"""
+
+        self.assertEqual(self.evaluate(script), Integer(14))
+
         
 if __name__ == "__main__":
     unittest.main()
