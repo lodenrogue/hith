@@ -50,3 +50,9 @@
 
 (defun not (condition)
   (if condition nil t))
+
+(defun substring (string start end)
+  (defvar accum "")
+  (range i start end
+	 (setq accum (format "%s%s" accum (nth i string))))
+  accum)

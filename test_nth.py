@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import Nil, Integer
+from htypes import Nil, Integer, String
 
 
 class TestNth(unittest.TestCase):
@@ -20,6 +20,8 @@ class TestNth(unittest.TestCase):
     def test_last_item(self):
         self.assertEqual(self.evaluate("(nth 2 (quote (123 456 789)))"), Integer(789))
 
+    def test_string(self):
+        self.assertEqual(self.evaluate("(nth 2 \"test\")"), String("s"))
 
 if __name__ == "__main__":
     unittest.main()

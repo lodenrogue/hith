@@ -360,8 +360,17 @@ class BuiltInFunctions(FunctionScope):
 
     def nth(self, index, items):
         index = index.value
+
+        if isinstance(items, String):
+            items = strip_quotes(items.value)
+
         if len(items) > index:
-            return items[index]
+            value = items[index]
+
+            if isinstance(value, str):
+                return String(value)
+            else:
+                return value
 
         return Nil()
 
