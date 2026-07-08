@@ -112,6 +112,21 @@ class TestLogicalOperators(unittest.TestCase):
 
         self.assertEqual(self.evaluate(script), Integer(14))
 
+    def test_and(self):
+        self.assertEqual(self.evaluate("(and)"), BooleanTrue())
+        self.assertEqual(self.evaluate("(and nil)"), Nil())
+        self.assertEqual(self.evaluate("(and (> 2 3))"), Nil())
+        self.assertEqual(self.evaluate("(and t)"), BooleanTrue())
+        self.assertEqual(self.evaluate("(and t 1)"), Integer(1))
+        self.assertEqual(self.evaluate("(and t 1 (+ 2 3))"), Integer(5))
+        self.assertEqual(self.evaluate("(and t nil (+ 2 3))"), Nil())
+
+    def test_or(self):
+        self.assertEqual(self.evaluate("(or)"), Nil())
+        self.assertEqual(self.evaluate("(or (> 2 1)"), BooleanTrue())
+        self.assertEqual(self.evaluate("(or (> 1 1) (+ 1 2))"), Integer(3))
+        self.assertEqual(self.evaluate("(or (> 1 1) (> 1 1))"), Nil())
+
         
 if __name__ == "__main__":
     unittest.main()

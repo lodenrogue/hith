@@ -2,11 +2,29 @@
   (if (eq (length clauses) 0)
       nil
       (progn
-        (setq clause (car clauses))
-        (setq rest (cdr clauses))
-        `(if ,(car clause)
-             ,(car (cdr clause))
-             (cond ,@rest)))))
+	(setq clause (car clauses))
+	(setq rest (cdr clauses))
+	`(if ,(car clause)
+	     ,(car (cdr clause))
+	     (cond ,@rest)))))
+
+(defmacro and (&rest conditions)
+  (if (eq (length conditions) 0)
+      t
+      (if (eq (length conditions) 1)
+          (car conditions)
+          `(if ,(car conditions)
+               (and ,@(cdr conditions))
+               nil))))
+
+(defmacro or (&rest conditions)
+  (if (eq (length conditions) 0)
+      nil
+      (if (eq (length conditions) 1)
+	  (car conditions)
+	  `(if ,(car conditions)
+	       ,(car conditions)
+	       (or ,@(cdr conditions))))))
 
 (defun not (condition)
   (if condition nil t))
