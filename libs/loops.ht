@@ -1,0 +1,37 @@
+(defmacro while (condition &rest body)
+  (setq cond-fn (gensym))
+  (setq loop-fn (gensym))
+  `(progn
+     (defun ,cond-fn () ,condition)
+     (defun ,loop-fn ()
+       (if (,cond-fn)
+	   (progn
+	     ,@body
+	     (,loop-fn))))
+     (,loop-fn)))
+
+(defmacro foreach (item collection &rest body)
+  (setq idx (gensym))
+  `(progn
+     (for ,idx 0 (< ,idx (length ,collection)) (setq ,idx (+ ,idx 1))
+	  (setq ,item (nth ,idx ,collection))
+	  ,@body)))
+
+(defmacro for (var initval condition update &rest body)
+  `(progn
+     (setq ,var ,initval)
+     (while ,condition
+       ,@body
+       ,update)))
+
+(defmacro range (var lower upper &rest body)
+  `(progn
+     (setq ,var ,lower)
+     (while (< ,var ,upper)
+       ,@body
+       (setq ,var (+ ,var 1)))))
+
+(defmacro repeat (times &rest body)
+  `(range ,(gensym) 0 ,times
+	  ,@body))
+  

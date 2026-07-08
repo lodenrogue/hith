@@ -1,0 +1,13 @@
+(defun reverse (list)
+  (defvar reversed '())
+  (foreach item list
+	   (setq reversed (push item reversed)))
+  reversed)
+
+(defun push (item list)
+  (cons item list))
+
+(defun append (item list)
+  (defvar reversed (reverse list))
+  (setq reversed (push item reversed))
+  (reverse reversed))

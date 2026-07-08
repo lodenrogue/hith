@@ -5,39 +5,6 @@
   (setq gensym-counter (+ gensym-counter 1))
   (make-symbol (format "#:G%s" num)))
 
-(defmacro while (condition &rest body)
-  (setq cond-fn (gensym))
-  (setq loop-fn (gensym))
-  `(progn
-     (defun ,cond-fn () ,condition)
-     (defun ,loop-fn ()
-       (if (,cond-fn)
-	   (progn
-	     ,@body
-	     (,loop-fn))))
-     (,loop-fn)))
-
-(defmacro foreach (item collection &rest body)
-  (setq idx (gensym))
-  `(progn
-     (for ,idx 0 (< ,idx (length ,collection)) (setq ,idx (+ ,idx 1))
-	  (setq ,item (nth ,idx ,collection))
-	  ,@body)))
-
-(defmacro for (var initval condition update &rest body)
-  `(progn
-     (setq ,var ,initval)
-     (while ,condition
-       ,@body
-       ,update)))
-
-(defmacro range (var lower upper &rest body)
-  `(progn
-     (setq ,var ,lower)
-     (while (< ,var ,upper)
-       ,@body
-       (setq ,var (+ ,var 1)))))
-
 (defmacro cond (&rest clauses)
   (if (eq (length clauses) 0)
       nil
@@ -50,35 +17,3 @@
 
 (defun not (condition)
   (if condition nil t))
-
-(defun substring (string start end)
-  (defvar accum "")
-  (range i start end
-	 (setq accum (format "%s%s" accum (nth i string))))
-  accum)
-
-(defun reverse (list)
-  (defvar reversed '())
-  (foreach item list
-	   (setq reversed (push item reversed)))
-  reversed)
-
-(defun push (item list)
-  (cons item list))
-
-(defun append (item list)
-  (defvar reversed (reverse list))
-  (setq reversed (push item reversed))
-  (reverse reversed))
-
-(defun split-string (string separator)
-  (defvar splits '())
-  (defvar remainder string)
-  (defvar index (string-match separator remainder))
-
-  (while index
-    (setq splits (append (substring remainder 0 index) splits))
-    (setq remainder (substring remainder (+ index 1) (length remainder)))
-    (setq index (string-match separator remainder)))
-
-  (append remainder splits))

@@ -306,6 +306,31 @@ class TestLoops(unittest.TestCase):
 
         self.evaluate(script)
         self.assertEqual(self.evaluate("nums"), [Integer(1), Integer(2), Integer(3)])
+
+    def test_repeat_zero_times(self):
+        script = """(defvar hits 0)
+                    (repeat 0
+                      (setq hits (+ hits 1)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("hits"), Integer(0))
+
+    def test_repeat_one_time(self):
+        script = """(defvar hits 0)
+                    (repeat 1
+                      (setq hits (+ hits 1)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("hits"), Integer(1))
+
+    def test_repeat_multiple_time(self):
+        script = """(defvar hits 0)
+                    (repeat 2
+                      (setq hits (+ hits 1)))"""
+
+        self.evaluate(script)
+        self.assertEqual(self.evaluate("hits"), Integer(2))
+
         
 
 if __name__ == "__main__":

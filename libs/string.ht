@@ -1,0 +1,17 @@
+(defun substring (string start end)
+  (defvar accum "")
+  (range i start end
+	 (setq accum (format "%s%s" accum (nth i string))))
+  accum)
+
+(defun split-string (string separator)
+  (defvar splits '())
+  (defvar remainder string)
+  (defvar index (string-match separator remainder))
+
+  (while index
+    (setq splits (append (substring remainder 0 index) splits))
+    (setq remainder (substring remainder (+ index 1) (length remainder)))
+    (setq index (string-match separator remainder)))
+
+  (append remainder splits))
