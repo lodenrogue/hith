@@ -139,23 +139,23 @@ class Evaluator:
 
 
     def is_atom(self, node):
-        return self.global_env.functions.data["atom"](node)
+        return self.global_env.functions.data["atom"](node) == BooleanTrue()
 
 
     def is_symbol(self, node):
-        return self.global_env.functions.data["symbolp"](node)
+        return self.global_env.functions.data["symbolp"](node) == BooleanTrue()
 
 
     def is_integer(self, node):
-        return self.global_env.functions.data["intp"](node)
+        return self.global_env.functions.data["intp"](node) == BooleanTrue()
 
 
     def is_float(self, node):
-        return self.global_env.functions.data["floatp"](node)
+        return self.global_env.functions.data["floatp"](node) == BooleanTrue()
 
 
     def is_string(self, node):
-        return self.global_env.functions.data["stringp"](node)
+        return self.global_env.functions.data["stringp"](node) == BooleanTrue()
 
 
     def quote(self, arg):
@@ -257,9 +257,16 @@ class Evaluator:
 
         formatted = string.value
         for arg in body[1:]:
-            value = self.evaluate_node(arg, env).value
+            value = self.evaluate_node(arg, env)
+
+            if isinstance(value, BooleanTrue):
+                value = "t"
+            else:
+                value = value.value
+
             if isinstance(value, str):
                 value = strip_quotes(value)
+
             formatted = formatted.replace("%s", str(value), 1)
 
         result = String(formatted)
@@ -317,16 +324,16 @@ class BuiltInFunctions(FunctionScope):
     def __create_init_values(self):
         return {
             "make-symbol": lambda name: Symbol(strip_quotes(name.value)),
-            "atom": lambda e: isinstance(e, Atom),
-            "intp": lambda e: isinstance(e, Integer),
-            "floatp": lambda e: isinstance(e, Float),
-            "stringp": lambda e: isinstance(e, String),
-            "symbolp": lambda e: isinstance(e, Symbol),
+            "atom": lambda e: self.cast_boolean(isinstance(e, Atom)),
+            "intp": lambda e: self.cast_boolean(isinstance(e, Integer)),
+            "floatp": lambda e: self.cast_boolean(isinstance(e, Float)),
+            "stringp": lambda e: self.cast_boolean(isinstance(e, String)),
+            "symbolp": lambda e: self.cast_boolean(isinstance(e, Symbol)),
             "+": lambda x, y: self.cast_arithmetic(x, y, x.value + y.value),
             "-": lambda x, y: self.cast_arithmetic(x, y, x.value - y.value),
             "*": lambda x, y: self.cast_arithmetic(x, y, x.value * y.value),
             "/": lambda x, y: self.cast_arithmetic(x, y, x.value / y.value),
-            ">": lambda x, y: self.cast_boolean((x.value > y.value)),
+            ">": lambda x, y: self.cast_boolean(x.value > y.value),
             "<": lambda x, y: self.cast_boolean(x.value < y.value),
             ">=": lambda x, y: self.cast_boolean(x.value >= y.value),
             "<=": lambda x, y: self.cast_boolean(x.value <= y.value),

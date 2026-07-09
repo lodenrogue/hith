@@ -20,6 +20,13 @@ class TestFormat(unittest.TestCase):
         self.assertEqual(self.evaluate("(format \"test %s test\" (+ 1 2))"),
                          String("\"test 3 test\""))
 
+    def test_format_boolean(self):
+        self.assertEqual(self.evaluate('(format "%s" t)'),
+                         String('"t"'))
+
+        self.assertEqual(self.evaluate('(format "%s" (< 1 2))'),
+                         String('"t"'))
+
     def test_format_mixed_arguments(self):
         self.assertEqual(self.evaluate("(format \"test %s test%s\" (+ 1 2) \"!!!\")"),
                          String("\"test 3 test!!!\""))
