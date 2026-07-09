@@ -41,6 +41,14 @@ class TestFunctions(unittest.TestCase):
         with self.assertRaises(UndefinedFunctionException):
             self.evaluate("(inner-func 10)")
 
+    def test_funcall_symbol(self):
+        self.evaluate("(defun add10 (x) (+ x 10))")
+        self.assertEqual(self.evaluate("(funcall add10 5)"), Integer(15))
+
+    def test_funcall_variable(self):
+        self.evaluate("(defvar my-op '+)")
+        self.assertEqual(self.evaluate("(funcall my-op 1 2)"), Integer(3))
+
 
 if __name__ == "__main__":
     unittest.main()

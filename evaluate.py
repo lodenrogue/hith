@@ -62,12 +62,7 @@ class Evaluator:
             expansion = macro(*raw_args)
             return self.evaluate_node(expansion, env)
 
-        function = env.function(head)
-        if function is None:
-            raise UndefinedFunctionException(f'Function with name {head.value} is undefined')
-
-        evaluated_args = [self.evaluate_node(n, env) for n in raw_args]
-        return function(*evaluated_args)
+        return self.funcall(head, raw_args, env)
     
 
     def handle_special_form(self, head, tail, env):
@@ -112,6 +107,9 @@ class Evaluator:
         if head == "progn":
             return self.progn(*tail, env=env)
 
+        if head == "funcall":
+            return self.funcall(fn=tail[0], args=tail[1:], env=env)
+
 
     def is_quoted(self, node):
         return isinstance(node, str) and node.startswith("'")
@@ -130,7 +128,8 @@ class Evaluator:
             "format",
             "message",
             "length",
-            "progn"
+            "progn",
+            "funcall"
         ]
 
 
@@ -295,6 +294,20 @@ class Evaluator:
             result = self.evaluate_node(arg, env)
 
         return result
+
+
+    def funcall(self, fn, args, env):
+        resolved = env.symbol_value(fn)
+        fn_symbol = fn if self.is_nil(resolved) else resolved
+        
+        function = env.function(fn_symbol)
+        if function is None:
+            raise UndefinedFunctionException(f'Function with name {fn_symbol.value} is undefined')
+
+        evaluated_args = [self.evaluate_node(arg, env) for arg in args]
+        return function(*evaluated_args)
+
+        
 
 
 class Variables:
