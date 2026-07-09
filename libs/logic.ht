@@ -30,5 +30,7 @@
   (if condition nil t))
 
 (defmacro unless (condition &rest body)
-  `(if (not ,condition)
-       ,@body))
+  `(if (not ,condition) ,@body))
+
+(defmacro when (condition &rest body)
+  `(if ,condition ,@body))

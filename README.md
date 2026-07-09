@@ -11,7 +11,7 @@ Hith supports:
 - Strings
 - Lists, and list operations (`list`, `cons`, `car`, `cdr`, `nth`, `length`, `push`, `reverse`, `append`)
 - Conditionals (`if`, `cond`)
-- Logical operators (`and`, `or`, `not`, `unless`)
+- Logical operators (`and`, `or`, `not`, `when`, `unless`)
 - Loops (`while`, `for`, `range`, `foreach`, `repeat`)
 - User-defined functions (`defun`) with multi-expression bodies and `&rest` parameters
 - Calling functions indirectly with `funcall`
@@ -391,6 +391,17 @@ nil
 3
 
 >>> (or (> 1 1) (> 1 1))
+nil
+```
+
+`when` is a one-armed `if`; it runs its body when the condition is
+truthy:
+
+```lisp
+>>> (when (> 2 1) (+ 3 2))
+5
+
+>>> (when (> 1 2) (+ 3 2))
 nil
 ```
 
@@ -833,6 +844,7 @@ the REPL prompt to exit the program.
 | `cond` | macro | Multi-branch conditional; a `t` clause acts as the default |
 | `and` | macro | Short-circuiting logical and |
 | `or` | macro | Short-circuiting logical or |
+| `when` | macro | Runs its body only when the test is truthy |
 | `unless` | macro | Runs its body only when the test is falsy |
 | `defun` | special form | Defines a function; supports `&rest` |
 | `defmacro` | special form | Defines a macro; supports `&rest` |
@@ -908,7 +920,7 @@ Not everything lives in the Python evaluator. A number of features are themselve
 | --- | --- |
 | `core.ht` | `gensym` |
 | `list.ht` | `push`, `reverse`, `append` |
-| `logic.ht` | `cond`, `and`, `or`, `not`, `unless` |
+| `logic.ht` | `cond`, `and`, `or`, `not`, `when`, `unless` |
 | `loops.ht` | `while`, `for`, `range`, `foreach`, `repeat` |
 | `random.ht` | `randrange`, `choice` |
 | `string.ht` | `substring`, `string-contains`, `split-string` |

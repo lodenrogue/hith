@@ -112,6 +112,22 @@ class TestLogicalOperators(unittest.TestCase):
 
         self.assertEqual(self.evaluate(script), Integer(14))
 
+    def test_when(self):
+        self.assertEqual(self.evaluate("(when t 1)"), Integer(1))
+        self.assertEqual(self.evaluate("(when nil 1)"), Nil())
+        self.assertEqual(self.evaluate("(when (> 2 1) 1)"), Integer(1))
+        self.assertEqual(self.evaluate("(when (> 1 2) 1)"), Nil())
+        self.assertEqual(self.evaluate("(when (> 2 1) (+ 3 2))"), Integer(5))
+
+        script = """(when (> 2 1)
+                      (progn
+                        (defvar x 10)
+                        (setq x (+ x 2))
+                        (setq x (+ x 2))
+                        x))"""
+
+        self.assertEqual(self.evaluate(script), Integer(14))
+
     def test_and(self):
         self.assertEqual(self.evaluate("(and)"), BooleanTrue())
         self.assertEqual(self.evaluate("(and nil)"), Nil())
