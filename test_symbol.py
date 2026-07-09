@@ -9,15 +9,15 @@ class TestSymbol(unittest.TestCase):
         self.evaluate = Evaluator().evaluate
 
     def test_make_symbol(self):
-        result = self.evaluate("(make-symbol \"x\")")
+        result = self.evaluate('(make-symbol "x")')
         self.assertTrue(isinstance(result, Symbol))
         self.assertEqual(result.value, "x")
 
     def test_gensym(self):
-        self.assertTrue(self.evaluate("(symbolp (gensym))"))
-        self.assertEqual(self.evaluate("(gensym)").value, "#:G1")
-        self.assertEqual(self.evaluate("(gensym)").value, "#:G2")
-        self.assertEqual(self.evaluate("(gensym)").value, "#:G3")
+        self.assertTrue(self.evaluate('(symbolp (gensym))'))
+        self.assertEqual(self.evaluate('(gensym)').value, "#:G1")
+        self.assertEqual(self.evaluate('(gensym)').value, "#:G2")
+        self.assertEqual(self.evaluate('(gensym)').value, "#:G3")
 
 
 if __name__ == "__main__":
