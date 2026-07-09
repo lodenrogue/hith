@@ -9,10 +9,10 @@ class TestRandom(unittest.TestCase):
         self.evaluate = Evaluator().evaluate
 
     def test_random(self):
-        self.assertTrue(self.evaluate("(floatp (random))"))
+        self.assertTrue(self.evaluate("(float? (random))"))
 
     def test_random_range(self):
-        self.assertTrue(self.evaluate("(intp (randrange 0 5)"))
+        self.assertTrue(self.evaluate("(int? (randrange 0 5)"))
 
     def test_random_choice_list(self):
         self.evaluate("(defvar x '())")

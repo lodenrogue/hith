@@ -138,23 +138,23 @@ class Evaluator:
 
 
     def is_atom(self, node):
-        return self.global_env.functions.data["atom"](node) == BooleanTrue()
+        return self.global_env.functions.data["atom?"](node) == BooleanTrue()
 
 
     def is_symbol(self, node):
-        return self.global_env.functions.data["symbolp"](node) == BooleanTrue()
+        return self.global_env.functions.data["symbol?"](node) == BooleanTrue()
 
 
     def is_integer(self, node):
-        return self.global_env.functions.data["intp"](node) == BooleanTrue()
+        return self.global_env.functions.data["int?"](node) == BooleanTrue()
 
 
     def is_float(self, node):
-        return self.global_env.functions.data["floatp"](node) == BooleanTrue()
+        return self.global_env.functions.data["float?"](node) == BooleanTrue()
 
 
     def is_string(self, node):
-        return self.global_env.functions.data["stringp"](node) == BooleanTrue()
+        return self.global_env.functions.data["string?"](node) == BooleanTrue()
 
 
     def quote(self, arg):
@@ -307,8 +307,6 @@ class Evaluator:
         evaluated_args = [self.evaluate_node(arg, env) for arg in args]
         return function(*evaluated_args)
 
-        
-
 
 class Variables:
 
@@ -337,11 +335,11 @@ class BuiltInFunctions(FunctionScope):
     def __create_init_values(self):
         return {
             "make-symbol": lambda name: Symbol(strip_quotes(name.value)),
-            "atom": lambda e: self.cast_boolean(isinstance(e, Atom)),
-            "intp": lambda e: self.cast_boolean(isinstance(e, Integer)),
-            "floatp": lambda e: self.cast_boolean(isinstance(e, Float)),
-            "stringp": lambda e: self.cast_boolean(isinstance(e, String)),
-            "symbolp": lambda e: self.cast_boolean(isinstance(e, Symbol)),
+            "atom?": lambda e: self.cast_boolean(isinstance(e, Atom)),
+            "int?": lambda e: self.cast_boolean(isinstance(e, Integer)),
+            "float?": lambda e: self.cast_boolean(isinstance(e, Float)),
+            "string?": lambda e: self.cast_boolean(isinstance(e, String)),
+            "symbol?": lambda e: self.cast_boolean(isinstance(e, Symbol)),
             "+": lambda x, y: self.cast_arithmetic(x, y, x.value + y.value),
             "-": lambda x, y: self.cast_arithmetic(x, y, x.value - y.value),
             "*": lambda x, y: self.cast_arithmetic(x, y, x.value * y.value),

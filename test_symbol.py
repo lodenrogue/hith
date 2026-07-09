@@ -14,7 +14,7 @@ class TestSymbol(unittest.TestCase):
         self.assertEqual(result.value, "x")
 
     def test_gensym(self):
-        self.assertTrue(self.evaluate('(symbolp (gensym))'))
+        self.assertTrue(self.evaluate('(symbol? (gensym))'))
         self.assertEqual(self.evaluate('(gensym)').value, "#:G1")
         self.assertEqual(self.evaluate('(gensym)').value, "#:G2")
         self.assertEqual(self.evaluate('(gensym)').value, "#:G3")
