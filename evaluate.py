@@ -168,9 +168,9 @@ class Evaluator:
 
     def _expand_backquote(self, node, env):
         if isinstance(node, list) and len(node) == 2 and isinstance(node[0], Symbol):
-            if node[0].value == "unquote":
-                return self.evaluate_node(node[1], env)
-            if node[0].value == "unquote-splice":
+            operator = node[0].value
+
+            if operator in ("unquote", "unquote-splice"):
                 return self.evaluate_node(node[1], env)
 
         if isinstance(node, list):
@@ -182,25 +182,34 @@ class Evaluator:
     def _expand_backquote_list(self, items, env):
         result = []
         for item in items:
-            if (isinstance(item, list) and len(item) == 2
-                and isinstance(item[0], Symbol) and item[0].value == "unquote-splice"):
-                spliced = self.evaluate_node(item[1], env)
-                if not isinstance(spliced, list):
-                    raise TypeError(",@ (unquote-splice) requires a list result")
-                result.extend(spliced)
-            elif (isinstance(item, list) and len(item) == 2
-                  and isinstance(item[0], Symbol) and item[0].value == "unquote"):
-                result.append(self.evaluate_node(item[1], env))
-            elif isinstance(item, list):
+            if isinstance(item, list) and len(item) == 2 and isinstance(item[0], Symbol):
+                operator, expr = item[0].value, item[1]
+
+                if operator == "unquote-splice":
+                    spliced = self.evaluate_node(expr, env)
+
+                    if not isinstance(spliced, list):
+                        raise TypeError(",@ (unquote-splice) requires a list result")
+
+                    result.extend(spliced)
+                    continue
+
+                if operator == "unquote":
+                    result.append(self.evaluate_node(expr, env))
+                    continue
+
+            if isinstance(item, list):
                 result.append(self._expand_backquote_list(item, env))
             else:
                 result.append(item)
+
         return result
 
 
     def defvar(self, name, value, env):
         env.variables.data[name.value] = self.evaluate_node(value, env)
         return name
+
 
     def setq(self, name, value, env):
         val = self.evaluate_node(value, env)
