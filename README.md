@@ -733,8 +733,8 @@ with a backslash to be matched literally:
 >>> (string-match "test" "z")
 nil
 
->>> (string-match "a+b" "\\+")
-1
+>>> (string-match "aa+b" "\+")
+2
 ```
 
 `string-to-number` parses a string into an Integer or a Float, or
