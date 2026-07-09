@@ -1,6 +1,6 @@
 # Hith
 
-A Lisp interpreter, written from scratch in Python. Hith has s-expression syntax, lexical scoping with closures, macros with quasiquotation, and a small standard library of loops and helpers written in Hith itself.
+A Lisp interpreter, written from scratch in Python. Hith has s-expression syntax, lexical scoping with closures, macros with quasiquotation, and a small standard library of loops, logical operators, and string/list helpers written in Hith itself.
 
 Hith supports:
 
@@ -9,13 +9,16 @@ Hith supports:
 - Variables (`defvar`, `setq`) and symbol lookup
 - Integers and floats (mixing the two promotes to float)
 - Strings
-- Lists, and list operations (`list`, `cons`, `car`, `cdr`, `nth`, `length`)
+- Lists, and list operations (`list`, `cons`, `car`, `cdr`, `nth`, `length`, `push`, `reverse`, `append`)
 - Conditionals (`if`, `cond`)
-- Loops (`while`, `for`, `range`, `foreach`)
-- User-defined functions (`defun`) with multi-expression bodies
+- Logical operators (`and`, `or`, `not`, `unless`)
+- Loops (`while`, `for`, `range`, `foreach`, `repeat`)
+- User-defined functions (`defun`) with multi-expression bodies and `&rest` parameters
+- Calling functions indirectly with `funcall`
 - Lexical scoping and closures
 - Macros (`defmacro`) with backquote/unquote/unquote-splice
-- Type predicates (`atom`, `intp`, `floatp`, `stringp`, `symbolp`)
+- Type predicates (`atom?`, `int?`, `float?`, `string?`, `symbol?`)
+- Regular expressions and string helpers (`string-match`, `string-to-number`, `substring`, `split-string`, `string-contains`)
 - Randomness (`random`, `randrange`, `choice`)
 - Reading files (`file-read-lines`)
 - Printing to standard out (`message`, `format`)
@@ -37,12 +40,14 @@ Hith supports:
   - [Printing](#printing)
   - [Comparisons](#comparisons)
   - [Conditionals](#conditionals)
+  - [Logical Operators](#logical-operators)
   - [Loops](#loops)
   - [Lists](#lists)
   - [Functions](#functions)
   - [Macros](#macros)
   - [Symbols](#symbols)
   - [Type Predicates](#type-predicates)
+  - [Regex and Strings](#regex-and-strings)
   - [Randomness](#randomness)
   - [Files](#files)
   - [Sequencing with progn](#sequencing-with-progn)
@@ -82,6 +87,12 @@ square
 
 >>> (message "hello")
 "hello"
+
+>>> (defmacro my-when (test &rest body) `(if ,test (progn ,@body) nil))
+my-when
+
+>>> (my-when (> x 5) (setq x (+ x 1)) (* x 2))
+22
 ```
 
 ## Requirements
@@ -107,14 +118,14 @@ python hith.py script
 ```
 
 Any extra command-line arguments are passed through and available
-inside the script as `command-line-args. A list whose first element is
+inside the script as `command-line-args`. A list whose first element is
 the script's own path, followed by whatever else you passed:
 
 ```bash
 python hith.py greet friend
 ```
 
-```bash
+```lisp
 (message (nth 1 command-line-args))
 ```
 
@@ -181,7 +192,7 @@ Hith has five kinds of value:
 "Hello, world!"
 ```
 
-There's no separate boolean type. Truth is `t`; Every value other than
+There's no separate boolean type. Truth is `t`; every value other than
 `nil` is truthy in a conditional including numbers, strings, and
 non-empty lists:
 
@@ -238,7 +249,7 @@ nil
 ```
 
 `defvar` and `setq` both return the variable's *name* (as a symbol),
-not its value. Leep that in mind if you're chaining expressions
+not its value. Keep that in mind if you're chaining expressions
 together.
 
 They also differ in an important way: `defvar` always creates (or
@@ -340,9 +351,63 @@ For more than two branches, use `cond`. Each clause is a test paired with a resu
 "something else"
 ```
 
+### Logical Operators
+
+`not` inverts a value to `t` or `nil`. `and` and `or` short-circuit and
+each take any number of arguments:
+
+```lisp
+>>> (not nil)
+t
+
+>>> (not t)
+nil
+```
+
+`and` evaluates its arguments left to right and returns the value of
+the last one, unless one of them is `nil`, in which case it stops
+early and returns `nil`. With no arguments, it returns `t`:
+
+```lisp
+>>> (and)
+t
+
+>>> (and t 1 (+ 2 3))
+5
+
+>>> (and t nil (+ 2 3))
+nil
+```
+
+`or` returns the value of the first truthy argument, stopping as soon
+as it finds one. With no arguments, or if every argument is `nil`, it
+returns `nil`:
+
+```lisp
+>>> (or)
+nil
+
+>>> (or (> 1 1) (+ 1 2))
+3
+
+>>> (or (> 1 1) (> 1 1))
+nil
+```
+
+`unless` is the inverse of a one-armed `if`; it runs its body only when
+the condition is falsy:
+
+```lisp
+>>> (unless (> 1 2) (+ 3 2))
+5
+
+>>> (unless (> 2 1) (+ 3 2))
+nil
+```
+
 ### Loops
 
-Hith has four looping constructs. All of them run their body, which may be more than one expression, once per iteration, in order.
+Hith has five looping constructs. All of them run their body, which may be more than one expression, once per iteration, in order.
 
 `while` re-checks its condition before every iteration:
 
@@ -381,7 +446,16 @@ Also `45` with `i` left holding `10`.
 ```
 `total` is `15` afterward. Reassigning the loop variable inside the body doesn't mutate the original list.
 
-All four loops can be nested, and all of them leave their loop variable (and anything else touched via `setq`) accessible after the loop ends.
+`repeat` runs its body a fixed number of times, without giving you access to a loop variable:
+
+```lisp
+(defvar hits 0)
+(repeat 3
+  (setq hits (+ hits 1)))
+```
+`hits` is `3` afterward.
+
+All five loops can be nested, and all of them leave their loop variable (and anything else touched via `setq`) accessible after the loop ends.
 
 ### Lists
 
@@ -429,6 +503,24 @@ more
 
 >>> (nth 0 more)
 0
+```
+
+`push` and `append` build on `cons` to add an item to the front or the
+back of a list, and `reverse` flips one around, all returning new
+lists rather than mutating the original:
+
+```lisp
+>>> (defvar nums (list 1 2 3))
+nums
+
+>>> (push 0 nums)
+(0 1 2 3)
+
+>>> (append 4 nums)
+(1 2 3 4)
+
+>>> (reverse nums)
+(3 2 1)
 ```
 
 `length` also works on strings:
@@ -515,6 +607,21 @@ You can also write recursive functions in the usual way:
 120
 ```
 
+Functions can also be called indirectly with `funcall`, either by
+symbol or by a variable that holds one. This is handy for passing a
+function around as a value:
+
+```lisp
+>>> (funcall + 1 2)
+3
+
+>>> (defvar my-op '+)
+my-op
+
+>>> (funcall my-op 1 2)
+3
+```
+
 ### Macros
 
 Macros are defined with `defmacro`. Unlike a function, a macro receives its arguments as unevaluated code, and instead of computing a value it returns a new piece of code, which is then evaluated in its place. Backquote (a leading backtick) quotes a template while still allowing two escapes inside it: `,` evaluates a single piece normally, and `,@` evaluates a piece that must be a list and splices its items in.
@@ -575,39 +682,88 @@ with a name already in use:
 
 | Predicate | True for |
 | --- | --- |
-| `atom` | integers, floats, strings, and symbols. Anything that isn't a list |
-| `intp` | integers |
-| `floatp` | floats |
-| `stringp` | strings |
-| `symbolp` | symbols |
+| `atom?` | integers, floats, strings, and symbols. Anything that isn't a list |
+| `int?` | integers |
+| `float?` | floats |
+| `string?` | strings |
+| `symbol?` | symbols |
 
 ```lisp
->>> (intp 10)
+>>> (int? 10)
 t
 
->>> (floatp 12.23)
+>>> (float? 12.23)
 t
 
->>> (stringp "test")
+>>> (string? "test")
 t
 
->>> (symbolp (quote x))
+>>> (symbol? (quote x))
 t
 
 >>> (defvar x 10)
 x
 
->>> (atom x)
+>>> (atom? x)
+t
+```
+
+### Regex and Strings
+
+`string-match` searches a string for a regular expression pattern and
+returns the index of the first match, or `nil` if there's no match.
+Regex metacharacters like `+`, `.`, `(`, and `)` need to be escaped
+with a backslash to be matched literally:
+
+```lisp
+>>> (string-match "test" "e")
+1
+
+>>> (string-match "test" "z")
+nil
+
+>>> (string-match "a+b" "\\+")
+1
+```
+
+`string-to-number` parses a string into an Integer or a Float, or
+returns `nil` if it isn't a valid number:
+
+```lisp
+>>> (string-to-number "10")
+10
+
+>>> (string-to-number "10.55")
+10.55
+
+>>> (string-to-number "not a number")
+nil
+```
+
+Built on top of `string-match` and `nth`, the standard library adds a
+few more string helpers. `substring` extracts the characters between
+two indices, `split-string` breaks a string apart on every occurrence
+of a separator, and `string-contains` reports whether a match exists
+at all:
+
+```lisp
+>>> (substring "test" 0 2)
+"te"
+
+>>> (split-string "test test" "e")
+("t" "st t" "st")
+
+>>> (string-contains "test" "es")
 t
 ```
 
 ### Randomness
 
 ```lisp
->>> (floatp (random))
+>>> (float? (random))
 t
 
->>> (intp (randrange 0 5))
+>>> (int? (randrange 0 5))
 t
 ```
 
@@ -675,13 +831,18 @@ the REPL prompt to exit the program.
 | `symbol-value` | special form | Looks up a symbol's value (`nil` if undefined) |
 | `if` | special form | `(if test then [else])` |
 | `cond` | macro | Multi-branch conditional; a `t` clause acts as the default |
+| `and` | macro | Short-circuiting logical and |
+| `or` | macro | Short-circuiting logical or |
+| `unless` | macro | Runs its body only when the test is falsy |
 | `defun` | special form | Defines a function; supports `&rest` |
 | `defmacro` | special form | Defines a macro; supports `&rest` |
 | `while` | macro | `(while test body...)` |
 | `for` | macro | `(for var init test update body...)` |
 | `range` | macro | `(range var lower upper body...)` |
 | `foreach` | macro | `(foreach var list body...)` |
+| `repeat` | macro | `(repeat n body...)` |
 | `progn` | special form | Evaluates a sequence, returns the last value |
+| `funcall` | special form | Calls a function by symbol, including one held in a variable |
 | `format` | special form | Builds a formatted string, does not print |
 | `message` | special form | Formats, prints, and returns a string |
 | `length` | special form | Length of a string or list |
@@ -692,17 +853,26 @@ the REPL prompt to exit the program.
 | --- | --- |
 | `+` `-` `*` `/` | Arithmetic (2 arguments each) |
 | `>` `<` `>=` `<=` `eq` | Comparisons (2 arguments each); return `t` or `nil` |
+| `not` | Logical negation |
 | `list` | Builds a list from its arguments |
 | `cons` | Prepends an item to a list |
 | `car` | First item of a list (`nil` if empty) |
 | `cdr` | Everything after the first item of a list |
-| `nth` | Item at a 0-based index (`nil` if out of range) |
-| `atom` `intp` `floatp` `stringp` `symbolp` | Type predicates |
+| `nth` | Item at a 0-based index (`nil` if out of range); works on strings too |
+| `push` | Prepends an item to a list (standard library) |
+| `append` | Appends an item to the end of a list (standard library) |
+| `reverse` | Reverses a list (standard library) |
+| `atom?` `int?` `float?` `string?` `symbol?` | Type predicates |
 | `make-symbol` | Builds a symbol from a string |
 | `gensym` | Generates a fresh, unique symbol |
+| `string-match` | Searches a string for a regex pattern, returns the match index or `nil` |
+| `string-to-number` | Parses a string into an Integer or Float, or `nil` |
+| `substring` | Extracts a substring between two indices (standard library) |
+| `split-string` | Splits a string on every occurrence of a separator (standard library) |
+| `string-contains` | Checks whether a substring/pattern matches (standard library) |
 | `random` | Random float in `[0, 1)` |
-| `randrange` | Random integer in a range |
-| `choice` | Random element of a list (`nil` if empty) |
+| `randrange` | Random integer in a range (standard library) |
+| `choice` | Random element of a list, `nil` if empty (standard library) |
 | `round` | Rounds to the nearest integer |
 | `file-read-lines` | Reads a file into a list of line-strings |
 | `exit` | Ends the program |
@@ -713,48 +883,52 @@ The interpreter has three stages, plus a small self-hosted standard library.
 
 ### Lexer
 
-Converts source code into tokens.
+Converts source code into tokens, including the `'`, `` ` ``, `,`, and `,@` quoting markers.
 
 Input: `(+ 1 2)`
 Output: `['(', '+', '1', '2', ')']`
 
 ### Parser
 
-Converts tokens into an Abstract Syntax Tree.
+Converts tokens into an Abstract Syntax Tree, attaching any pending quote/backquote/unquote/unquote-splice markers to the form that follows them.
 
 Output (conceptually): `["+", 1, 2]`
 
 ### Evaluator
 
-Recursively evaluates the AST. `quote`, `backquote`, `defvar`, `setq`, `symbol-value`, `if`, `defun`, `defmacro`, `format`, `message`, `length`, and `progn` are special forms and receive their arguments unevaluated; ordinary functions evaluate all of their arguments first. Macros are expanded once per call site into a new piece of code, which is then evaluated in the calling environment.
+Recursively evaluates the AST. `quote`, `backquote`, `defvar`, `setq`, `symbol-value`, `if`, `defun`, `defmacro`, `format`, `message`, `length`, `progn`, and `funcall` are special forms and receive their arguments unevaluated; ordinary functions evaluate all of their arguments first. Macros are expanded once per call site into a new piece of code, which is then evaluated in the calling environment.
 
-Evaluation happens inside an `Env` object, and environments nest through parent links. A user-defined function creates a new environment whose parent is the environment the function was *defined* in (not the one it's *called* from), which is what gives Hith lexical scoping and closures.
+Evaluation happens inside an `Env` object, and environments nest through parent links. A user-defined function or macro creates a new environment whose parent is the environment it was *defined* in (not the one it's *called* from), which is what gives Hith lexical scoping and closures. Function and macro parameter lists may end with `&rest name` to collect any remaining arguments into a list.
 
 ### Standard Library
 
-Not everything lives in the Python evaluator. Features like `cond`, `while`, `for`, `range`, `foreach`, `randrange`, `choice`, and `gensym` are themselves written in Hith, using `defmacro`/`defun`, and are loaded automatically from the `libs/` directory the moment an `Evaluator` is created.
+Not everything lives in the Python evaluator. A number of features are themselves written in Hith, using `defun`/`defmacro`, and are loaded automatically from the `libs/` directory the moment an `Evaluator` is created:
+
+| File | Provides |
+| --- | --- |
+| `core.ht` | `gensym` |
+| `list.ht` | `push`, `reverse`, `append` |
+| `logic.ht` | `cond`, `and`, `or`, `not`, `unless` |
+| `loops.ht` | `while`, `for`, `range`, `foreach`, `repeat` |
+| `random.ht` | `randrange`, `choice` |
+| `string.ht` | `substring`, `string-contains`, `split-string` |
 
 ## Running Tests
 
 Run all tests:
 
-```lisp
+```bash
 python -m unittest discover
 ```
 
 or:
 
-```lisp
+```bash
 make test
 ```
 
 Or run an individual test file:
 
-```lisp
+```bash
 python test_lexer.py
 ```
-
-## Current Limitations
-
-- Limited error handling.
-- No comment syntax.
