@@ -8,7 +8,7 @@ evaluate = Evaluator().evaluate
 
 def run_script(path, arg_list):
     with open(path, "r") as f:
-        args = " ".join(arg_list)
+        args = " ".join([f'"{arg}"' for arg in arg_list])
         evaluate(f'(defvar command-line-args (quote ({args})))')
         evaluate(f.read())
 

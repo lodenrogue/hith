@@ -4,14 +4,17 @@
 	 (setq accum (format "%s%s" accum (nth i string))))
   accum)
 
+(defun string-contains (string match)
+  (if (string-match string match) t))
+
 (defun split-string (string separator)
   (defvar splits '())
   (defvar remainder string)
-  (defvar index (string-match separator remainder))
+  (defvar index (string-match remainder separator))
 
   (while index
     (setq splits (append (substring remainder 0 index) splits))
     (setq remainder (substring remainder (+ index 1) (length remainder)))
-    (setq index (string-match separator remainder)))
+    (setq index (string-match remainder separator)))
 
   (append remainder splits))

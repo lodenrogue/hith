@@ -356,7 +356,7 @@ class BuiltInFunctions(FunctionScope):
                 return Nil()
 
 
-    def string_match(self, regex, string):
+    def string_match(self, string, regex):
         pattern = re.compile(strip_quotes(regex.value))
         m = pattern.search(strip_quotes(string.value))
         if m:
@@ -530,4 +530,3 @@ def strip_quotes(value):
     if isinstance(value, str) and len(value) >= 2 and value.startswith("\"") and value.endswith("\""):
         return value[1:-1]
     return value
-
