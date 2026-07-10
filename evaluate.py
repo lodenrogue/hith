@@ -407,7 +407,7 @@ class BuiltInFunctions(FunctionScope):
             value = items[index]
 
             if isinstance(value, str):
-                return String(value)
+                return String(f'"{value}"')
             else:
                 return value
 

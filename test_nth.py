@@ -21,7 +21,7 @@ class TestNth(unittest.TestCase):
         self.assertEqual(self.evaluate('(nth 2 (quote (123 456 789)))'), Integer(789))
 
     def test_string(self):
-        self.assertEqual(self.evaluate('(nth 2 "test")'), String("s"))
+        self.assertEqual(self.evaluate('(nth 2 "test")'), String('"s"'))
 
 if __name__ == "__main__":
     unittest.main()
