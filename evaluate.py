@@ -359,8 +359,21 @@ class BuiltInFunctions(FunctionScope):
             "car": lambda items: items[0] if items else NIL,
             "cdr": lambda items: items[1:] if items else [],
             "string-match": self.string_match,
-            "string-to-number": self.string_to_number
+            "string-to-number": self.string_to_number,
+            "char-to-ord": self.char_to_ord,
+            "ord-to-char": self.ord_to_char,
         }
+
+
+    def ord_to_char(self, num):
+        return String(f'"{chr(num.value)}"')
+
+
+    def char_to_ord(self, char):
+        stripped = strip_quotes(char.value)
+        c = stripped[0]
+        o = ord(c)
+        return Integer(o)
 
 
     def string_to_number(self, string):

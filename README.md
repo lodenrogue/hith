@@ -886,6 +886,8 @@ the REPL prompt to exit the program.
 | `substring` | Extracts a substring between two indices (standard library) |
 | `split-string` | Splits a string on every occurrence of a separator (standard library) |
 | `string-contains` | Checks whether a substring/pattern matches (standard library) |
+| `char-to-ord`| Converts a char or the first char of a string into its ordinal value |
+| `ord-to-char`| Converts an int into its char value |
 | `random` | Random float in `[0, 1)` |
 | `randrange` | Random integer in a range (standard library) |
 | `choice` | Random element of a list, `nil` if empty (standard library) |

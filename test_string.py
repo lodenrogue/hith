@@ -34,6 +34,14 @@ class TestString(unittest.TestCase):
     def test_string_to_number_non_number(self):
         self.assertEqual(self.evaluate('(string-to-number "test")'), NIL)
 
+    def test_char_to_ord(self):
+        self.assertEqual(self.evaluate('(char-to-ord "A")'), Integer(65))
+        self.assertEqual(self.evaluate('(char-to-ord "Hello")'), Integer(72))
+
+    def test_ord_to_char(self):
+        self.assertEqual(self.evaluate('(ord-to-char 65)'), String('"A"'))
+        self.assertEqual(self.evaluate('(ord-to-char 72)'), String('"H"'))
+
 
 if __name__ == "__main__":
     unittest.main()
