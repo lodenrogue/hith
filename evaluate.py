@@ -3,7 +3,7 @@ import re
 import random
 from lexer import Lexer
 from parser import Parser
-from htypes import Nil, Atom, BooleanTrue, Integer, Float, String, Symbol
+from htypes import NIL, Atom, T, Integer, Float, String, Symbol
 
 
 LIBS_DIR = os.path.dirname(os.path.abspath(__file__)) + "/libs"
@@ -31,7 +31,7 @@ class Evaluator:
     def evaluate(self, exp):
         ast = self.parser.build_ast(self.lexer.tokenize(exp))
 
-        result = Nil()
+        result = NIL
         for node in ast:
             result = self.evaluate_node(node, self.global_env)
 
@@ -49,7 +49,7 @@ class Evaluator:
                 return node
 
         if isinstance(node, list) and len(node) == 0:
-            return Nil()
+            return NIL
 
         raw_head, *raw_args = node
         head = self.evaluate_node(raw_head, env) if isinstance(raw_head, list) else raw_head
@@ -134,27 +134,27 @@ class Evaluator:
 
 
     def is_nil(self, node):
-        return isinstance(node, Nil)
+        return node == NIL
 
 
     def is_atom(self, node):
-        return self.global_env.functions.data["atom?"](node) == BooleanTrue()
+        return self.global_env.functions.data["atom?"](node) == T
 
 
     def is_symbol(self, node):
-        return self.global_env.functions.data["symbol?"](node) == BooleanTrue()
+        return self.global_env.functions.data["symbol?"](node) == T
 
 
     def is_integer(self, node):
-        return self.global_env.functions.data["int?"](node) == BooleanTrue()
+        return self.global_env.functions.data["int?"](node) == T
 
 
     def is_float(self, node):
-        return self.global_env.functions.data["float?"](node) == BooleanTrue()
+        return self.global_env.functions.data["float?"](node) == T
 
 
     def is_string(self, node):
-        return self.global_env.functions.data["string?"](node) == BooleanTrue()
+        return self.global_env.functions.data["string?"](node) == T
 
 
     def quote(self, arg):
@@ -226,13 +226,13 @@ class Evaluator:
     def doif(self, cond, dothen, doelse, env):
         cond_value = self.evaluate_node(cond, env)
 
-        if cond_value != Nil():
+        if cond_value != NIL:
             return self.evaluate_node(dothen, env)
         else:
             if doelse:
                 return self.evaluate_node(doelse, env)
             else:
-                return Nil()
+                return NIL
 
 
     def defun(self, name, params, body, env):
@@ -258,7 +258,7 @@ class Evaluator:
         for arg in body[1:]:
             value = self.evaluate_node(arg, env)
 
-            if isinstance(value, BooleanTrue):
+            if value == T:
                 value = "t"
             else:
                 value = value.value
@@ -288,7 +288,7 @@ class Evaluator:
 
 
     def progn(self, *args, env):
-        result = Nil()
+        result = NIL
 
         for arg in args:
             result = self.evaluate_node(arg, env)
@@ -356,7 +356,7 @@ class BuiltInFunctions(FunctionScope):
             "file-read-lines": self.file_read_lines,
             "list": lambda *args: list(args),
             "cons": self.cons,
-            "car": lambda items: items[0] if items else Nil(),
+            "car": lambda items: items[0] if items else NIL,
             "cdr": lambda items: items[1:] if items else [],
             "string-match": self.string_match,
             "string-to-number": self.string_to_number
@@ -371,7 +371,7 @@ class BuiltInFunctions(FunctionScope):
             try:
                 return Float(float(value))
             except ValueError:
-                return Nil()
+                return NIL
 
 
     def string_match(self, string, regex):
@@ -380,7 +380,7 @@ class BuiltInFunctions(FunctionScope):
         if m:
             return Integer(m.start())
         else:
-            return Nil()
+            return NIL
 
 
     def cast_arithmetic(self, x, y, result):
@@ -392,9 +392,9 @@ class BuiltInFunctions(FunctionScope):
 
     def cast_boolean(self, result):
         if result == True:
-            return BooleanTrue()
+            return T
         else:
-            return Nil()
+            return NIL
 
 
     def nth(self, index, items):
@@ -411,7 +411,7 @@ class BuiltInFunctions(FunctionScope):
             else:
                 return value
 
-        return Nil()
+        return NIL
 
     def cons(self, item, items):
         return [item] + list(items)
@@ -449,7 +449,7 @@ class Env:
         elif self.parent:
             return self.parent.symbol_value(symbol)
         else:
-            return Nil()
+            return NIL
 
     def function(self, symbol):
         if symbol.value in self.functions.data:
@@ -506,7 +506,7 @@ class Function:
         variables.data.update(self.param_spec.bind(list(args)))
 
         local_env = Env(variables, FunctionScope(), MacroScope(), parent=self.env)
-        result = Nil()
+        result = NIL
 
         for expression in self.body:
             result = self.evaluator.evaluate_node(expression, local_env)
@@ -531,7 +531,7 @@ class Macro:
         variables.data.update(self.param_spec.bind(list(raw_args)))
 
         local_env = Env(variables, FunctionScope(), MacroScope(), parent=self.env)
-        result = Nil()
+        result = NIL
 
         for expression in self.body:
             result = self.evaluator.evaluate_node(expression, local_env)

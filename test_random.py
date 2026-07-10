@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import Nil, Symbol
+from htypes import NIL, Symbol
 
 
 class TestRandom(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestRandom(unittest.TestCase):
 
     def test_random_choice_list(self):
         self.evaluate("(defvar x '())")
-        self.assertEqual(self.evaluate("(choice x)"), Nil())
+        self.assertEqual(self.evaluate("(choice x)"), NIL)
 
         self.evaluate("(defvar x '(a))")
         self.assertEqual(self.evaluate("(choice x)"), Symbol("a"))

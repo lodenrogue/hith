@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import Nil, Integer
+from htypes import NIL, Integer
 
 
 class TestProgn(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestProgn(unittest.TestCase):
         self.evaluate = Evaluator().evaluate
 
     def test_empty_body(self):
-        self.assertEqual(self.evaluate("(progn)"), Nil())
+        self.assertEqual(self.evaluate("(progn)"), NIL)
 
     def test_single_expression(self):
         self.assertEqual(self.evaluate("(progn (+ 2 3))"), Integer(5))

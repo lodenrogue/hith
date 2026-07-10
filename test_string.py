@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import String, Integer, Float, Nil
+from htypes import String, Integer, Float, NIL
 
 
 class TestString(unittest.TestCase):
@@ -32,7 +32,7 @@ class TestString(unittest.TestCase):
         self.assertEqual(self.evaluate('(string-to-number "10.55")'), Float(10.55))
 
     def test_string_to_number_non_number(self):
-        self.assertEqual(self.evaluate('(string-to-number "test")'), Nil())
+        self.assertEqual(self.evaluate('(string-to-number "test")'), NIL)
 
 
 if __name__ == "__main__":

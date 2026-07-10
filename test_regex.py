@@ -1,7 +1,7 @@
 import unittest
 import re
 from evaluate import Evaluator
-from htypes import Nil, Integer
+from htypes import NIL, Integer
 
 
 class TestRegex(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestRegex(unittest.TestCase):
         self.assertEqual(self.evaluate('(string-match "1d10" "^[0-9]+d[0-9]+([+-]?[0-9]+)?$")'), Integer(0))
         self.assertEqual(self.evaluate('(string-match "1d10+3" "^[0-9]+d[0-9]+([+-]?[0-9]+)?$")'), Integer(0))
         self.assertEqual(self.evaluate('(string-match "20d10-12" "^[0-9]+d[0-9]+([+-]?[0-9]+)?$")'), Integer(0))
-        self.assertEqual(self.evaluate('(string-match "1d10xx" "^[0-9]+d[0-9]+([+-]?[0-9]+)?$")'), Nil())
+        self.assertEqual(self.evaluate('(string-match "1d10xx" "^[0-9]+d[0-9]+([+-]?[0-9]+)?$")'), NIL)
 
     def test_string_match_found(self):
         self.evaluate('(defvar x "test")')
@@ -24,7 +24,7 @@ class TestRegex(unittest.TestCase):
 
     def test_string_match_not_found(self):
         self.evaluate('(defvar x "test")')
-        self.assertEqual(self.evaluate('(string-match x "z")'), Nil())
+        self.assertEqual(self.evaluate('(string-match x "z")'), NIL)
 
     def test_string_match_literal_plus(self):
         # searching for a literal "+" requires escaping it in the pattern: \+

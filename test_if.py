@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import Nil, Integer
+from htypes import NIL, Integer
 
 
 class TestIf(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestIf(unittest.TestCase):
         self.assertEqual(self.evaluate('(if nil (+ 1 2) (+ 2 3))'), Integer(5))
 
     def test_no_else(self):
-        self.assertEqual(self.evaluate('(if nil 1)'), Nil())
+        self.assertEqual(self.evaluate('(if nil 1)'), NIL)
 
     def test_nil_cond(self):
         self.assertEqual(self.evaluate('(if nil 1 2)'), Integer(2))

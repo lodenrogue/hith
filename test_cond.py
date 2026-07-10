@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import Nil, Integer
+from htypes import NIL, Integer
 
 
 class TestCond(unittest.TestCase):
@@ -9,12 +9,12 @@ class TestCond(unittest.TestCase):
         self.evaluate = Evaluator().evaluate
 
     def test_cond_no_clauses(self):
-        self.assertEqual(self.evaluate('(cond (()))'), Nil())
-        self.assertEqual(self.evaluate('(cond ())'), Nil())
+        self.assertEqual(self.evaluate('(cond (()))'), NIL)
+        self.assertEqual(self.evaluate('(cond ())'), NIL)
 
     def test_cond_single_clause(self):
         self.assertEqual(self.evaluate('(cond ((> 2 1) 3))').value, 3)
-        self.assertEqual(self.evaluate('(cond ((> 1 2) 3))'), Nil())
+        self.assertEqual(self.evaluate('(cond ((> 1 2) 3))'), NIL)
 
     def test_cond_multiple_clauses(self):
         script = """(defun check-value (x)

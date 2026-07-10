@@ -1,6 +1,6 @@
 import unittest
 from evaluate import Evaluator
-from htypes import Nil, Integer, String
+from htypes import NIL, Integer, String
 
 
 class TestNth(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestNth(unittest.TestCase):
         self.evaluate = Evaluator().evaluate
 
     def test_empty_list(self):
-        self.assertEqual(self.evaluate('(nth 0 (quote ()))'), Nil())
+        self.assertEqual(self.evaluate('(nth 0 (quote ()))'), NIL)
 
     def test_first_item(self):
         self.assertEqual(self.evaluate('(nth 0 (quote (123 456 789)))'), Integer(123))

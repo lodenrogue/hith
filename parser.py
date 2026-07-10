@@ -1,5 +1,5 @@
 import json
-from htypes import Nil, Atom, BooleanTrue, Integer, Float, String, Symbol
+from htypes import NIL, Atom, T, Integer, Float, String, Symbol
 
 
 class Parser:
@@ -62,10 +62,10 @@ class Parser:
             return token
 
         if token == "nil":
-            return Nil()
+            return NIL
 
         if token == "t":
-            return BooleanTrue()
+            return T
 
         try:
             return Integer(int(token))
