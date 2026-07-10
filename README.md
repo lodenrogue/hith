@@ -206,7 +206,7 @@ non-empty lists:
 
 ### Arithmetic
 
-`+`, `-`, `*`, and `/` each take exactly two arguments. Nest calls to
+`+`, `-`, `*`, `/`, and `mod` each take exactly two arguments. Nest calls to
 combine more than two values:
 
 ```lisp
@@ -224,6 +224,9 @@ combine more than two values:
 
 >>> (+ 1 (+ 2 3))
 6
+
+>>> (mod 5 2)
+1
 ```
 
 ### Variables
@@ -867,7 +870,7 @@ the REPL prompt to exit the program.
 
 | Function | Description |
 | --- | --- |
-| `+` `-` `*` `/` | Arithmetic (2 arguments each) |
+| `+` `-` `*` `/` `mod` | Arithmetic (2 arguments each) |
 | `>` `<` `>=` `<=` `eq` | Comparisons (2 arguments each); return `t` or `nil` |
 | `not` | Logical negation |
 | `list` | Builds a list from its arguments |

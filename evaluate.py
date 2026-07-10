@@ -344,6 +344,7 @@ class BuiltInFunctions(FunctionScope):
             "-": lambda x, y: self.cast_arithmetic(x, y, x.value - y.value),
             "*": lambda x, y: self.cast_arithmetic(x, y, x.value * y.value),
             "/": lambda x, y: self.cast_arithmetic(x, y, x.value / y.value),
+            "mod": self.mod,
             ">": lambda x, y: self.cast_boolean(x.value > y.value),
             "<": lambda x, y: self.cast_boolean(x.value < y.value),
             ">=": lambda x, y: self.cast_boolean(x.value >= y.value),
@@ -363,6 +364,11 @@ class BuiltInFunctions(FunctionScope):
             "char-to-ord": self.char_to_ord,
             "ord-to-char": self.ord_to_char,
         }
+
+
+    def mod(self, x, y):
+        result = x.value % y.value
+        return Float(result) if isinstance(result, float) else Integer(result)
 
 
     def ord_to_char(self, num):
