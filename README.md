@@ -395,7 +395,7 @@ nil
 ```
 
 `when` is a one-armed `if`; it runs its body when the condition is
-truthy:
+truthy. The body can be multiple statements:
 
 ```lisp
 >>> (when (> 2 1) (+ 3 2))
@@ -406,7 +406,7 @@ nil
 ```
 
 `unless` is the inverse of a one-armed `if`; it runs its body only when
-the condition is falsy:
+the condition is falsy. The body can be multiple statements:
 
 ```lisp
 >>> (unless (> 1 2) (+ 3 2))

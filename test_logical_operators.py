@@ -104,11 +104,10 @@ class TestLogicalOperators(unittest.TestCase):
         self.assertEqual(self.evaluate("(unless (> 1 2) (+ 3 2))"), Integer(5))
 
         script = """(unless (> 1 2)
-                      (progn
                         (defvar x 10)
                         (setq x (+ x 2))
                         (setq x (+ x 2))
-                        x))"""
+                        x)"""
 
         self.assertEqual(self.evaluate(script), Integer(14))
 
@@ -120,11 +119,10 @@ class TestLogicalOperators(unittest.TestCase):
         self.assertEqual(self.evaluate("(when (> 2 1) (+ 3 2))"), Integer(5))
 
         script = """(when (> 2 1)
-                      (progn
                         (defvar x 10)
                         (setq x (+ x 2))
                         (setq x (+ x 2))
-                        x))"""
+                        x)"""
 
         self.assertEqual(self.evaluate(script), Integer(14))
 
