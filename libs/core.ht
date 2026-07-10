@@ -4,3 +4,7 @@
   (setq num gensym-counter)
   (setq gensym-counter (+ gensym-counter 1))
   (make-symbol (format "#:G%s" num)))
+
+(defun num? (e)
+  (or (int? e)
+      (float? e)))

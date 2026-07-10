@@ -1,5 +1,6 @@
 import unittest
 from evaluate import Evaluator
+from htypes import Nil, BooleanTrue
 
 
 class TestTypes(unittest.TestCase):
@@ -11,22 +12,29 @@ class TestTypes(unittest.TestCase):
         pass
 
     def test_atom(self):
-        self.assertTrue(self.evaluate('(atom? 10)'))
-        self.assertTrue(self.evaluate('(atom? 12.23)'))
-        self.assertTrue(self.evaluate('(atom? "test")'))
-        self.assertTrue(self.evaluate('(defvar x 10) (atom? x)'))
+        self.assertEqual(self.evaluate('(atom? 10)'), BooleanTrue())
+        self.assertEqual(self.evaluate('(atom? 12.23)'), BooleanTrue())
+        self.assertEqual(self.evaluate('(atom? "test")'), BooleanTrue())
+        self.assertEqual(self.evaluate('(defvar x 10) (atom? x)'), BooleanTrue())
 
     def test_integer(self):
-        self.assertTrue(self.evaluate('(int? 10)'))
+        self.assertEqual(self.evaluate('(int? 10)'), BooleanTrue())
 
     def test_float(self):
-        self.assertTrue(self.evaluate('(float? 12.23)'))
+        self.assertEqual(self.evaluate('(float? 12.23)'), BooleanTrue())
 
     def test_string(self):
-        self.assertTrue(self.evaluate('(string? "test")'))
+        self.assertEqual(self.evaluate('(string? "test")'), BooleanTrue())
 
     def test_symbol(self):
-        self.assertTrue(self.evaluate('(defvar x 10) (symbol? (quote x))'))
+        self.assertEqual(self.evaluate('(defvar x 10) (symbol? (quote x))'), BooleanTrue())
+
+    def test_num(self):
+        self.assertEqual(self.evaluate("(num? 1)"), BooleanTrue())
+        self.assertEqual(self.evaluate("(num? 1.1)"), BooleanTrue())
+        self.assertEqual(self.evaluate('(num? "test")'), Nil())
+        self.assertEqual(self.evaluate('(num? (< 1 2))'), Nil())
+        self.assertEqual(self.evaluate('(num? (> 1 2))'), Nil())
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,7 +17,7 @@ Hith supports:
 - Calling functions indirectly with `funcall`
 - Lexical scoping and closures
 - Macros (`defmacro`) with backquote/unquote/unquote-splice
-- Type predicates (`atom?`, `int?`, `float?`, `string?`, `symbol?`)
+- Type predicates (`atom?`, `int?`, `float?`, `num?`, `string?`, `symbol?`)
 - Regular expressions and string helpers (`string-match`, `string-to-number`, `substring`, `split-string`, `string-contains`)
 - Randomness (`random`, `randrange`, `choice`)
 - Reading files (`file-read-lines`)
@@ -696,6 +696,7 @@ with a name already in use:
 | `atom?` | integers, floats, strings, and symbols. Anything that isn't a list |
 | `int?` | integers |
 | `float?` | floats |
+| `num?` | integers and floats |
 | `string?` | strings |
 | `symbol?` | symbols |
 
@@ -704,6 +705,9 @@ with a name already in use:
 t
 
 >>> (float? 12.23)
+t
+
+>>> (num? 1.23)
 t
 
 >>> (string? "test")
@@ -874,7 +878,7 @@ the REPL prompt to exit the program.
 | `push` | Prepends an item to a list (standard library) |
 | `append` | Appends an item to the end of a list (standard library) |
 | `reverse` | Reverses a list (standard library) |
-| `atom?` `int?` `float?` `string?` `symbol?` | Type predicates |
+| `atom?` `int?` `float?` `num?` `string?` `symbol?` | Type predicates |
 | `make-symbol` | Builds a symbol from a string |
 | `gensym` | Generates a fresh, unique symbol |
 | `string-match` | Searches a string for a regex pattern, returns the match index or `nil` |
