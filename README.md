@@ -15,6 +15,7 @@ Hith supports:
 - Loops (`while`, `for`, `range`, `foreach`, `repeat`)
 - User-defined functions (`defun`) with multi-expression bodies and `&rest` parameters
 - Calling functions indirectly with `funcall`
+- Hashing strings with `hash`
 - Lexical scoping and closures
 - Macros (`defmacro`) with backquote/unquote/unquote-splice
 - Type predicates (`atom?`, `int?`, `float?`, `num?`, `string?`, `symbol?`)
@@ -775,6 +776,14 @@ at all:
 t
 ```
 
+You can hash strings with the `hash` function. A random hash seed is
+generated when the interpreter starts up.
+
+```lisp
+>>> (hash "test")
+958817860231810080
+```
+
 ### Randomness
 
 ```lisp
@@ -889,6 +898,7 @@ the REPL prompt to exit the program.
 | `substring` | Extracts a substring between two indices (standard library) |
 | `split-string` | Splits a string on every occurrence of a separator (standard library) |
 | `string-contains` | Checks whether a substring/pattern matches (standard library) |
+| `hash` | Generate a hash for a given string |
 | `char-to-ord`| Converts a char or the first char of a string into its ordinal value |
 | `ord-to-char`| Converts an int into its char value |
 | `random` | Random float in `[0, 1)` |
@@ -933,6 +943,7 @@ Not everything lives in the Python evaluator. A number of features are themselve
 | `loops.ht` | `while`, `for`, `range`, `foreach`, `repeat` |
 | `random.ht` | `randrange`, `choice` |
 | `string.ht` | `substring`, `string-contains`, `split-string` |
+| `hash.ht` | `hash` |
 
 ## Running Tests
 

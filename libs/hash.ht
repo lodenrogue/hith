@@ -1,0 +1,14 @@
+(defvar _hash-base 31)
+(defvar _hash-modulus 2305843009213693951)
+(defvar _hash-seed (round (* (random) (- _hash-modulus 1))))
+
+(defun hash (s)
+  (defvar acc _hash-seed)
+  (defvar char-count (length s))
+
+  (range i 0 char-count
+	 (defvar char (substring s i (+ i 1)))
+	 (defvar char-code (char-to-ord char))
+	 (defvar combined (+ (* acc _hash-base) char-code))
+	 (setq acc (mod combined _hash-modulus)))
+  acc)
